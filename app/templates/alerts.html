@@ -761,7 +761,7 @@
         }
         
         if (failed === 0) {
-            statusDiv.innerHTML = `<div class="alert alert-success py-2"><i class="bi bi-check-circle"></i> Alert sent to ${email} for ${sent} location(s)</div>`;
+            statusDiv.innerHTML = `<div class="alert alert-success py-2"><i class="bi bi-check-circle"></i> Alert sent to ${email} for ${sent} location(s). <strong>Check your spam folder if not received.</strong></div>`;
         } else {
             statusDiv.innerHTML = `<div class="alert alert-warning py-2"><i class="bi bi-exclamation-triangle"></i> Sent: ${sent}, Failed: ${failed}</div>`;
         }
