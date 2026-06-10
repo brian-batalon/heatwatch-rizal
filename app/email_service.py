@@ -7,7 +7,7 @@ from datetime import datetime, timedelta
 # Email Configuration
 ADMIN_EMAIL = "aztechworx@gmail.com"
 SMTP_SERVER = "smtp.gmail.com"
-SMTP_PORT = 587
+SMTP_PORT = 465
 SENDER_EMAIL = "aztechworx@gmail.com"
 SENDER_PASSWORD = "auahlcddwxcjwf"
 
@@ -39,8 +39,7 @@ class EmailService:
             msg.attach(MIMEText(message_body, 'plain'))
             
             # Send email
-            with smtplib.SMTP(SMTP_SERVER, SMTP_PORT) as server:
-                server.starttls()
+            with smtplib.SMTP_SSL(SMTP_SERVER, SMTP_PORT) as server:
                 server.login(SENDER_EMAIL, SENDER_PASSWORD)
                 server.send_message(msg)
             
