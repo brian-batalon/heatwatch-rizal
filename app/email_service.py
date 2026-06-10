@@ -7,7 +7,7 @@ from datetime import datetime, timedelta
 # Email Configuration
 ADMIN_EMAIL = "aztechworx@gmail.com"
 SMTP_SERVER = "smtp.gmail.com"
-SMTP_PORT = 465
+SMTP_PORT = 587
 SENDER_EMAIL = "aztechworx@gmail.com"
 SENDER_PASSWORD = "auahlcddwxcjwf"
 
@@ -17,7 +17,7 @@ _last_email_sent = {}  # {location_name: datetime}
 class EmailService:
     def __init__(self, app=None):
         self.app = app
-        self.cooldown_hours = 1  # Only send email once per hour per location
+        self.cooldown_hours = 1
     
     def can_send_email(self, location_name):
         """Check if enough time has passed since last email for this location"""
@@ -30,16 +30,14 @@ class EmailService:
     def send_alert_email(self, recipient, subject, message_body):
         """Send alert email using SMTP"""
         try:
-            # Create message
             msg = MIMEMultipart()
             msg['From'] = SENDER_EMAIL
             msg['To'] = recipient
             msg['Subject'] = subject
-            
             msg.attach(MIMEText(message_body, 'plain'))
             
-            # Send email
-            with smtplib.SMTP_SSL(SMTP_SERVER, SMTP_PORT) as server:
+            with smtplib.SMTP(SMTP_SERVER, SMTP_PORT, timeout=10) as server:
+                server.starttls()
                 server.login(SENDER_EMAIL, SENDER_PASSWORD)
                 server.send_message(msg)
             
@@ -58,7 +56,6 @@ class EmailService:
         if risk_level not in ['HIGH', 'DANGEROUS']:
             return False
         
-        # Check cooldown - only send once per hour per location
         if not self.can_send_email(location_name):
             time_since = datetime.now() - _last_email_sent.get(location_name, datetime.now())
             minutes_left = 60 - (time_since.total_seconds() / 60)
@@ -119,7 +116,6 @@ Auto-generated alert - Next alert for this location in {self.cooldown_hours} hou
         }
         advisory = advisories.get(risk_level, 'Please take necessary precautions.')
         
-        # Forecast section
         forecast_section = ""
         if predicted_temp is not None and predicted_risk is not None:
             forecast_section = f"""
