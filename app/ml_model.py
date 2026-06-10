@@ -11,7 +11,7 @@ class HeatRiskMLModel:
         self.is_trained = False
         
         # Model paths for FORECASTING models
-        base_path = os.path.join(os.path.dirname(__file__), '..', 'instance')
+        base_path = os.path.join(os.path.dirname(__file__), '..', 'ml_models')
         self.model_paths = {
             'rf': os.path.join(base_path, 'random_forest_forecast.pkl'),
             'dt': os.path.join(base_path, 'decision_tree_forecast.pkl'),
