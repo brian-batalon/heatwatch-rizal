@@ -1,0 +1,237 @@
+{% extends "base.html" %}
+
+{% block title %}History{% endblock %}
+{% block page_title %}Weather History Logs{% endblock %}
+
+{% block content %}
+<div class="alerts-container">
+    
+    <!-- Filters Bar -->
+    <div class="filters-bar">
+        <div class="filter-group">
+            <select class="filter-select" id="location-filter">
+                <option value="all">All Locations</option>
+            </select>
+            
+            <select class="filter-select" id="risk-filter">
+                <option value="all">All Risk Levels</option>
+                <option value="NORMAL">Normal</option>
+                <option value="MODERATE">Moderate</option>
+                <option value="HIGH">High</option>
+                <option value="DANGEROUS">Dangerous</option>
+            </select>
+        </div>
+        
+        <div class="filter-actions">
+            <button class="btn-modern" onclick="applyFilters()">
+                <i class="bi bi-funnel"></i> Apply Filters
+            </button>
+            <button class="btn-modern-outline" onclick="resetFilters()">
+                <i class="bi bi-arrow-counterclockwise"></i> Reset
+            </button>
+            <button class="btn-modern-outline" onclick="exportHistory()">
+                <i class="bi bi-download"></i> Export CSV
+            </button>
+        </div>
+    </div>
+    
+    <!-- History Table -->
+    <div class="modern-card">
+        <div class="table-wrapper">
+            <table class="modern-table">
+                <thead>
+                    <tr>
+                        <th>Time</th>
+                        <th>Location</th>
+                        <th>Temperature</th>
+                        <th>Humidity</th>
+                        <th>Heat Index</th>
+                        <th>Risk Level</th>
+                    </tr>
+                </thead>
+                <tbody id="history-table-body">
+                    <tr>
+                        <td colspan="6" class="loading-cell">
+                            <div class="loading-spinner">
+                                <i class="bi bi-arrow-repeat"></i> Loading history...
+                            </div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        
+        <!-- Pagination -->
+        <div class="pagination-wrapper">
+            <div class="pagination-info" id="pagination-info">
+                Showing <span id="showing-start">0</span>-<span id="showing-end">0</span> of <span id="total-items">0</span>
+            </div>
+            <nav>
+                <ul class="modern-pagination" id="pagination"></ul>
+            </nav>
+        </div>
+    </div>
+</div>
+
+<style>
+    .alerts-container { display: flex; flex-direction: column; gap: 24px; }
+    .filters-bar { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 16px; }
+    .filter-actions { display: flex; gap: 12px; }
+    .modern-card { background: var(--bg-secondary); border: 1px solid var(--border-color); border-radius: 20px; overflow: hidden; }
+    .table-wrapper { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+    .modern-table { width: 100%; min-width: 600px; }
+    .modern-table th { padding: 14px 20px; font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; color: var(--text-secondary); background: var(--bg-primary); }
+    .modern-table td { padding: 14px 20px; border-bottom: 1px solid var(--border-color); font-size: 14px; }
+    .loading-cell { text-align: center; padding: 40px !important; }
+    .pagination-wrapper { display: flex; align-items: center; justify-content: space-between; padding: 16px 24px; border-top: 1px solid var(--border-color); }
+    .pagination-info { font-size: 14px; color: var(--text-secondary); }
+    .modern-pagination { display: flex; gap: 6px; margin: 0; padding: 0; list-style: none; }
+    .modern-pagination .page-item { margin: 0; }
+    .modern-pagination .page-link { display: flex; align-items: center; justify-content: center; min-width: 36px; height: 36px; padding: 0 12px; background: var(--bg-primary); border: 1px solid var(--border-color); border-radius: 10px; color: var(--text-primary); font-weight: 500; text-decoration: none; transition: all 0.2s ease; cursor: pointer; }
+    .modern-pagination .page-link:hover { background: var(--bg-secondary); border-color: var(--primary); color: var(--primary); }
+    .modern-pagination .active .page-link { background: var(--primary); border-color: var(--primary); color: white; }
+    .modern-pagination .disabled .page-link { opacity: 0.5; cursor: not-allowed; pointer-events: none; }
+    
+    @media (max-width: 768px) {
+        .filters-bar { flex-direction: column; align-items: stretch; }
+        .filter-actions { flex-wrap: wrap; }
+        .filter-actions button { flex: 1; font-size: 12px; padding: 8px 12px; }
+        .pagination-wrapper { flex-direction: column; gap: 16px; }
+        .modern-table th, .modern-table td { padding: 10px 12px; font-size: 12px; white-space: nowrap; }
+    }
+</style>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    let allReadings = [];
+    let filteredReadings = [];
+    let currentPage = 1;
+    const itemsPerPage = 20;
+    
+    async function loadHistory() {
+        try {
+            const response = await fetch('/api/recent-readings?limit=500');
+            const data = await response.json();
+            allReadings = data;
+            filteredReadings = [...allReadings];
+            populateLocationFilter();
+            displayHistory();
+        } catch (error) {
+            console.error('Error loading history:', error);
+        }
+    }
+    
+    function populateLocationFilter() {
+        const locations = [...new Set(allReadings.map(r => r.location_name))];
+        const select = document.getElementById('location-filter');
+        select.innerHTML = '<option value="all">All Locations</option>';
+        locations.sort().forEach(loc => {
+            const option = document.createElement('option');
+            option.value = loc;
+            option.textContent = loc;
+            select.appendChild(option);
+        });
+    }
+    
+    function applyFilters() {
+        const locationFilter = document.getElementById('location-filter').value;
+        const riskFilter = document.getElementById('risk-filter').value;
+        
+        filteredReadings = allReadings.filter(reading => {
+            const locationMatch = locationFilter === 'all' || reading.location_name === locationFilter;
+            const riskMatch = riskFilter === 'all' || reading.risk_level === riskFilter;
+            return locationMatch && riskMatch;
+        });
+        
+        currentPage = 1;
+        displayHistory();
+    }
+    
+    function resetFilters() {
+        document.getElementById('location-filter').value = 'all';
+        document.getElementById('risk-filter').value = 'all';
+        filteredReadings = [...allReadings];
+        currentPage = 1;
+        displayHistory();
+    }
+    
+    function displayHistory() {
+        const tbody = document.getElementById('history-table-body');
+        const start = (currentPage - 1) * itemsPerPage;
+        const end = start + itemsPerPage;
+        const pageReadings = filteredReadings.slice(start, end);
+        
+        if (pageReadings.length === 0) {
+            tbody.innerHTML = `<tr><td colspan="6" style="text-align: center; padding: 60px 20px;"><i class="bi bi-clock-history" style="font-size: 48px; color: var(--text-muted);"></i><p style="margin-top: 16px; color: var(--text-secondary);">No history found</p></td></tr>`;
+            updatePaginationInfo(0, 0, 0);
+            document.getElementById('pagination').innerHTML = '';
+            return;
+        }
+        
+        tbody.innerHTML = '';
+        pageReadings.forEach(reading => {
+            const row = tbody.insertRow();
+            const timeStr = reading.timestamp ? reading.timestamp.replace('T', ' ').substring(0, 16) : 'N/A';
+            row.insertCell(0).textContent = timeStr;
+            row.insertCell(1).textContent = reading.location_name;
+            row.insertCell(2).textContent = `${reading.temperature}°C`;
+            row.insertCell(3).textContent = `${reading.humidity}%`;
+            row.insertCell(4).textContent = reading.heat_index ? `${reading.heat_index}°C` : 'N/A';
+            row.insertCell(5).innerHTML = `<span class="risk-badge ${reading.risk_level.toLowerCase()}">${reading.risk_level}</span>`;
+        });
+        
+        updatePaginationInfo(start + 1, Math.min(end, filteredReadings.length), filteredReadings.length);
+        updatePagination();
+    }
+    
+    function updatePaginationInfo(start, end, total) {
+        document.getElementById('showing-start').textContent = start;
+        document.getElementById('showing-end').textContent = end;
+        document.getElementById('total-items').textContent = total;
+    }
+    
+    function updatePagination() {
+        const totalPages = Math.ceil(filteredReadings.length / itemsPerPage);
+        const pagination = document.getElementById('pagination');
+        if (totalPages <= 1) { pagination.innerHTML = ''; return; }
+        
+        let html = `<li class="page-item ${currentPage === 1 ? 'disabled' : ''}"><span class="page-link" onclick="changePage(${currentPage - 1})"><i class="bi bi-chevron-left"></i></span></li>`;
+        const maxVisible = 5;
+        let startPage = Math.max(1, currentPage - Math.floor(maxVisible / 2));
+        let endPage = Math.min(totalPages, startPage + maxVisible - 1);
+        if (endPage - startPage < maxVisible - 1) startPage = Math.max(1, endPage - maxVisible + 1);
+        if (startPage > 1) { html += `<li class="page-item"><span class="page-link" onclick="changePage(1)">1</span></li>`; if (startPage > 2) html += `<li class="page-item disabled"><span class="page-link">...</span></li>`; }
+        for (let i = startPage; i <= endPage; i++) { html += `<li class="page-item ${i === currentPage ? 'active' : ''}"><span class="page-link" onclick="changePage(${i})">${i}</span></li>`; }
+        if (endPage < totalPages) { if (endPage < totalPages - 1) html += `<li class="page-item disabled"><span class="page-link">...</span></li>`; html += `<li class="page-item"><span class="page-link" onclick="changePage(${totalPages})">${totalPages}</span></li>`; }
+        html += `<li class="page-item ${currentPage === totalPages ? 'disabled' : ''}"><span class="page-link" onclick="changePage(${currentPage + 1})"><i class="bi bi-chevron-right"></i></span></li>`;
+        pagination.innerHTML = html;
+    }
+    
+    function changePage(page) {
+        const totalPages = Math.ceil(filteredReadings.length / itemsPerPage);
+        if (page >= 1 && page <= totalPages) { currentPage = page; displayHistory(); }
+    }
+    
+    function exportHistory() {
+        if (filteredReadings.length === 0) return;
+        let csv = 'Time,Location,Temperature,Humidity,Heat Index,Risk Level\n';
+        filteredReadings.forEach(r => {
+            const timeStr = r.timestamp ? r.timestamp.replace('T', ' ').substring(0, 16) : 'N/A';
+            csv += `"${timeStr}","${r.location_name}",${r.temperature},${r.humidity},${r.heat_index || ''},"${r.risk_level}"\n`;
+        });
+        const blob = new Blob([csv], { type: 'text/csv' });
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `heatwatch-history-${new Date().toISOString().split('T')[0]}.csv`;
+        a.click();
+    }
+    
+    document.getElementById('location-filter').addEventListener('change', applyFilters);
+    document.getElementById('risk-filter').addEventListener('change', applyFilters);
+    
+    loadHistory();
+    setInterval(loadHistory, 300000);
+</script>
+{% endblock %}

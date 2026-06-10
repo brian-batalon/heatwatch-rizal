@@ -1,0 +1,366 @@
+{% extends "base.html" %}
+
+{% block title %}ML Models{% endblock %}
+{% block page_title %}AI Model Comparison{% endblock %}
+
+{% block content %}
+<div class="models-container">
+    
+    <!-- Model Selector Cards -->
+    <div class="models-grid">
+        <div class="model-select-card" id="card-rf" onclick="switchModel('rf')">
+            <div class="model-card-icon" style="background: linear-gradient(135deg, #2563eb, #3b82f6);">
+                <i class="bi bi-tree"></i>
+            </div>
+            <h4>Random Forest</h4>
+            <div class="model-metric">
+                <span class="metric-value">95.6%</span>
+                <span class="metric-label">R² Score</span>
+            </div>
+            <span class="model-badge inactive-badge">Inactive</span>
+        </div>
+        
+        <div class="model-select-card" id="card-dt" onclick="switchModel('dt')">
+            <div class="model-card-icon" style="background: linear-gradient(135deg, #8b5cf6, #a78bfa);">
+                <i class="bi bi-diagram-3"></i>
+            </div>
+            <h4>Decision Tree</h4>
+            <div class="model-metric">
+                <span class="metric-value">93.3%</span>
+                <span class="metric-label">R² Score</span>
+            </div>
+            <span class="model-badge inactive-badge">Inactive</span>
+        </div>
+        
+        <div class="model-select-card" id="card-knn" onclick="switchModel('knn')">
+            <div class="model-card-icon" style="background: linear-gradient(135deg, #f59e0b, #fbbf24);">
+                <i class="bi bi-grid-3x3"></i>
+            </div>
+            <h4>K-Nearest Neighbors</h4>
+            <div class="model-metric">
+                <span class="metric-value">91.9%</span>
+                <span class="metric-label">R² Score</span>
+            </div>
+            <span class="model-badge inactive-badge">Inactive</span>
+        </div>
+    </div>
+    
+    <!-- R² Score Comparison - Full Width Chart -->
+    <div class="chart-card">
+        <div class="chart-header">
+            <div class="chart-title">
+                <i class="bi bi-graph-up"></i>
+                <span>R² Score Comparison by Model</span>
+            </div>
+        </div>
+        <div class="chart-body">
+            <canvas id="r2Chart"></canvas>
+        </div>
+    </div>
+    
+    <!-- Charts Row 1 -->
+    <div class="charts-row">
+        <div class="chart-card">
+            <div class="chart-header">
+                <div class="chart-title">
+                    <i class="bi bi-bar-chart"></i>
+                    <span>MAE Comparison (°C) - Lower is Better</span>
+                </div>
+            </div>
+            <div class="chart-body">
+                <canvas id="maeChart"></canvas>
+            </div>
+        </div>
+        
+        <div class="chart-card">
+            <div class="chart-header">
+                <div class="chart-title">
+                    <i class="bi bi-bar-chart"></i>
+                    <span>RMSE Comparison (°C) - Lower is Better</span>
+                </div>
+            </div>
+            <div class="chart-body">
+                <canvas id="rmseChart"></canvas>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Charts Row 2 -->
+    <div class="charts-row">
+        <div class="chart-card">
+            <div class="chart-header">
+                <div class="chart-title">
+                    <i class="bi bi-speedometer2"></i>
+                    <span>Predicted vs Actual (Scatter)</span>
+                </div>
+            </div>
+            <div class="chart-body">
+                <canvas id="scatterChart"></canvas>
+            </div>
+        </div>
+        
+        <div class="chart-card">
+            <div class="chart-header">
+                <div class="chart-title">
+                    <i class="bi bi-check2-circle"></i>
+                    <span>Model Error Comparison</span>
+                </div>
+            </div>
+            <div class="chart-body">
+                <canvas id="errorChart"></canvas>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Model Metrics Table -->
+    <div class="modern-card">
+        <div class="card-header-modern">
+            <div class="card-title">
+                <i class="bi bi-clipboard-data"></i>
+                <span>Forecasting Model Metrics (6-Hour Prediction)</span>
+            </div>
+        </div>
+        <div class="table-wrapper">
+            <table class="modern-table">
+                <thead>
+                    <tr>
+                        <th>Model</th>
+                        <th>R² Score</th>
+                        <th>MAE (°C)</th>
+                        <th>RMSE (°C)</th>
+                        <th>Type</th>
+                        <th>Prediction Target</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>🥇 Random Forest</strong></td>
+                        <td><span class="badge bg-success">0.9555</span></td>
+                        <td>0.58</td>
+                        <td>0.78</td>
+                        <td>Ensemble (100 Trees)</td>
+                        <td>Temperature 6h ahead</td>
+                    </tr>
+                    <tr>
+                        <td><strong>🥈 Decision Tree</strong></td>
+                        <td><span class="badge bg-success">0.9329</span></td>
+                        <td>0.73</td>
+                        <td>0.96</td>
+                        <td>Tree-based (Depth 10)</td>
+                        <td>Temperature 6h ahead</td>
+                    </tr>
+                    <tr>
+                        <td><strong>🥉 K-Nearest Neighbors</strong></td>
+                        <td><span class="badge bg-success">0.9193</span></td>
+                        <td>0.73</td>
+                        <td>1.05</td>
+                        <td>Distance-based (K=5)</td>
+                        <td>Temperature 6h ahead</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+    
+    <!-- Model Details Table -->
+    <div class="modern-card">
+        <div class="card-header-modern">
+            <div class="card-title">
+                <i class="bi bi-info-circle"></i>
+                <span>Model Information</span>
+            </div>
+            <div id="active-model-name" class="model-status">Random Forest Active</div>
+        </div>
+        <div class="table-wrapper">
+            <table class="modern-table">
+                <thead>
+                    <tr>
+                        <th>Model</th>
+                        <th>Input Features</th>
+                        <th>Training Data</th>
+                        <th>Data Source</th>
+                        <th>Purpose</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>Random Forest</strong></td>
+                        <td>Temp, Humidity, Heat Index, Hour, Month, Day</td>
+                        <td>3 Months Historical</td>
+                        <td>Open-Meteo API</td>
+                        <td>Predict temperature 6 hours ahead</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Decision Tree</strong></td>
+                        <td>Temp, Humidity, Heat Index, Hour, Month, Day</td>
+                        <td>3 Months Historical</td>
+                        <td>Open-Meteo API</td>
+                        <td>Predict temperature 6 hours ahead</td>
+                    </tr>
+                    <tr>
+                        <td><strong>K-Nearest Neighbors</strong></td>
+                        <td>Temp, Humidity, Heat Index, Hour, Month, Day</td>
+                        <td>3 Months Historical</td>
+                        <td>Open-Meteo API</td>
+                        <td>Predict temperature 6 hours ahead</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+    
+</div>
+
+<style>
+    .models-container { display: flex; flex-direction: column; gap: 24px; }
+    .models-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
+    .model-select-card { background: var(--bg-secondary); border: 2px solid var(--border-color); border-radius: 20px; padding: 24px; text-align: center; cursor: pointer; transition: all 0.2s ease; position: relative; }
+    .model-select-card:hover { border-color: var(--primary); transform: translateY(-4px); box-shadow: var(--shadow-lg); }
+    .model-select-card.active { border-color: var(--primary); background: rgba(37, 99, 235, 0.03); }
+    .model-card-icon { width: 60px; height: 60px; border-radius: 16px; display: flex; align-items: center; justify-content: center; color: white; font-size: 28px; margin: 0 auto 16px; }
+    .model-select-card h4 { font-weight: 700; margin-bottom: 12px; }
+    .model-metric { margin-bottom: 12px; }
+    .metric-value { display: block; font-size: 32px; font-weight: 700; color: var(--text-primary); }
+    .metric-label { font-size: 13px; color: var(--text-secondary); }
+    .model-badge { display: inline-block; padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: 600; }
+    .active-badge { background: rgba(16, 185, 129, 0.1); color: var(--risk-low); }
+    .inactive-badge { background: var(--bg-primary); color: var(--text-muted); }
+    .model-select-card.active .inactive-badge { display: none; }
+    .model-select-card:not(.active) .active-badge { display: none; }
+    .charts-row { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+    .chart-card { background: var(--bg-secondary); border: 1px solid var(--border-color); border-radius: 20px; overflow: hidden; }
+    .chart-header { padding: 18px 24px; border-bottom: 1px solid var(--border-color); }
+    .chart-title { display: flex; align-items: center; gap: 10px; font-weight: 600; color: var(--text-primary); }
+    .chart-title i { color: var(--primary); }
+    .chart-body { padding: 24px; min-height: 300px; }
+    .modern-card { background: var(--bg-secondary); border: 1px solid var(--border-color); border-radius: 20px; overflow: hidden; }
+    .card-header-modern { display: flex; align-items: center; justify-content: space-between; padding: 18px 24px; border-bottom: 1px solid var(--border-color); }
+    .card-title { display: flex; align-items: center; gap: 10px; font-weight: 600; }
+    .card-title i { color: var(--primary); font-size: 18px; }
+    .model-status { display: flex; align-items: center; gap: 8px; padding: 10px 16px; background: rgba(37, 99, 235, 0.1); border-radius: 20px; font-size: 13px; font-weight: 500; color: var(--primary); }
+    .table-wrapper { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+    .modern-table { width: 100%; min-width: 600px; }
+    .modern-table th { padding: 14px 20px; font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; color: var(--text-secondary); background: var(--bg-primary); }
+    .modern-table td { padding: 14px 20px; border-bottom: 1px solid var(--border-color); }
+    
+    @media (max-width: 1024px) {
+        .models-grid { grid-template-columns: repeat(2, 1fr); }
+    }
+    
+    @media (max-width: 768px) {
+        .models-grid { grid-template-columns: 1fr; }
+        .charts-row { grid-template-columns: 1fr; }
+        .chart-body { padding: 16px; min-height: 250px; }
+        .model-select-card { padding: 18px; }
+        .model-select-card h4 { font-size: 18px; }
+        .metric-value { font-size: 26px; }
+        .model-card-icon { width: 50px; height: 50px; font-size: 24px; }
+        .modern-table th, .modern-table td { padding: 10px 12px; font-size: 12px; white-space: nowrap; }
+        .card-header-modern { padding: 14px 16px; }
+    }
+    
+    @media (max-width: 480px) {
+        .models-grid { grid-template-columns: 1fr; }
+        .chart-body { padding: 12px; min-height: 220px; }
+        .model-select-card { padding: 14px; }
+        .model-select-card h4 { font-size: 16px; }
+        .metric-value { font-size: 22px; }
+    }
+</style>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    const modelNames = { rf: 'Random Forest', dt: 'Decision Tree', knn: 'K-Nearest Neighbors' };
+    
+    async function loadCurrentModel() {
+        try {
+            const response = await fetch('/api/model-info');
+            const info = await response.json();
+            if (info.current_model) {
+                const modelMap = {'Random Forest': 'rf', 'Decision Tree': 'dt', 'K-Nearest Neighbors': 'knn'};
+                updateModelUI(modelMap[info.current_model] || 'rf');
+            }
+        } catch (error) { console.error('Error loading model:', error); }
+    }
+    
+    function updateModelUI(modelName) {
+        document.querySelectorAll('.model-select-card').forEach(card => {
+            card.classList.remove('active');
+            const badge = card.querySelector('.model-badge');
+            if (card.id === `card-${modelName}`) { card.classList.add('active'); if (badge) { badge.className = 'model-badge active-badge'; badge.textContent = 'Active'; } }
+            else { if (badge) { badge.className = 'model-badge inactive-badge'; badge.textContent = 'Inactive'; } }
+        });
+        document.getElementById('active-model-name').textContent = `${modelNames[modelName]} Active`;
+    }
+    
+    // R² Score Comparison - Full Width Bar Chart
+    new Chart(document.getElementById('r2Chart'), {
+        type: 'bar',
+        data: {
+            labels: ['Random Forest', 'Decision Tree', 'K-Nearest Neighbors'],
+            datasets: [{
+                label: 'R² Score',
+                data: [0.9555, 0.9329, 0.9193],
+                backgroundColor: ['#2563eb', '#8b5cf6', '#f59e0b'],
+                borderRadius: 10,
+                barPercentage: 0.5
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: { y: { min: 0.85, max: 1.0, ticks: { stepSize: 0.02 } } },
+            plugins: { legend: { display: false }, tooltip: { callbacks: { label: function(ctx) { return 'R² Score: ' + (ctx.raw * 100).toFixed(2) + '%'; } } } }
+        }
+    });
+    
+    // MAE Comparison
+    new Chart(document.getElementById('maeChart'), {
+        type: 'bar',
+        data: {
+            labels: ['Random Forest', 'Decision Tree', 'K-Nearest'],
+            datasets: [{ label: 'MAE (°C)', data: [0.58, 0.73, 0.73], backgroundColor: ['#2563eb', '#8b5cf6', '#f59e0b'], borderRadius: 8 }] },
+        options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true, title: { display: true, text: '°C' } } } }
+    });
+    
+    // RMSE Comparison
+    new Chart(document.getElementById('rmseChart'), {
+        type: 'bar',
+        data: {
+            labels: ['Random Forest', 'Decision Tree', 'K-Nearest'],
+            datasets: [{ label: 'RMSE (°C)', data: [0.78, 0.96, 1.05], backgroundColor: ['#2563eb', '#8b5cf6', '#f59e0b'], borderRadius: 8 }] },
+        options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true, title: { display: true, text: '°C' } } } }
+    });
+    
+    // Error Comparison (MAE + RMSE together)
+    new Chart(document.getElementById('errorChart'), {
+        type: 'bar',
+        data: {
+            labels: ['Random Forest', 'Decision Tree', 'K-Nearest'],
+            datasets: [
+                { label: 'MAE (°C)', data: [0.58, 0.73, 0.73], backgroundColor: '#3b82f6', borderRadius: 6 },
+                { label: 'RMSE (°C)', data: [0.78, 0.96, 1.05], backgroundColor: '#ef4444', borderRadius: 6 }
+            ] },
+        options: { responsive: true, maintainAspectRatio: false, scales: { y: { beginAtZero: true } }, plugins: { legend: { position: 'bottom', labels: { usePointStyle: true, padding: 15 } } } }
+    });
+    
+    // Simulated scatter (predicted vs actual representation)
+    new Chart(document.getElementById('scatterChart'), {
+        type: 'bar',
+        data: {
+            labels: ['Random Forest', 'Decision Tree', 'K-Nearest'],
+            datasets: [
+                { label: 'R² Score (%)', data: [95.55, 93.29, 91.93], backgroundColor: '#10b981', borderRadius: 8 }
+            ] },
+        options: { responsive: true, maintainAspectRatio: false, scales: { y: { min: 85, max: 100 } }, plugins: { legend: { display: false }, tooltip: { callbacks: { label: function(ctx) { return 'Accuracy: ' + ctx.raw + '%'; } } } } }
+    });
+    
+    async function switchModel(modelName) {
+        updateModelUI(modelName);
+        try { await fetch('/api/switch-model', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ model: modelName }) }); } catch (error) { console.error('Error switching model:', error); }
+    }
+    
+    loadCurrentModel();
+</script>
+{% endblock %}

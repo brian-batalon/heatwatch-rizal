@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}HeatWatch{% endblock %} • Rizal</title>
+    
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    
+    <!-- Google Fonts - Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Leaflet CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🔥</text></svg>">
+    
+    {% block extra_css %}{% endblock %}
+</head>
+<body>
+    <!-- Welcome Info Modal -->
+    <div class="modal fade" id="welcomeModal" tabindex="-1">
+        <div class="modal-dialog modal-lg modal-dialog-centered">
+            <div class="modal-content modern-modal">
+                <div class="modal-header" style="background: linear-gradient(135deg, #2563eb, #8b5cf6); color: white;">
+                    <h5 class="modal-title">
+                        <i class="bi bi-thermometer-half"></i>
+                        <span>Welcome to HeatWatch Rizal</span>
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body" style="padding: 24px;">
+                    <div class="welcome-content">
+                        <p class="lead"><strong>HeatWatch Rizal</strong> is an intelligent heat risk monitoring and early warning system powered by Machine Learning and Geographic Information Systems (GIS), designed to protect communities across Rizal Province from extreme heat dangers.</p>
+                        
+                        <h6><i class="bi bi-thermometer-sun"></i> Real-Time Monitoring</h6>
+                        <p>HeatWatch continuously tracks temperature and humidity data from all 13 municipalities and 1 component city of Rizal Province, plus 3 nearby Metro Manila reference points, using the Open-Meteo weather API. The interactive GIS map visualizes heat risks in real-time, helping you identify danger zones instantly.</p>
+                        
+                        <h6><i class="bi bi-cpu"></i> AI-Powered Temperature Forecasting</h6>
+                        <p>The system uses three trained machine learning models — Random Forest (95.6% R²), Decision Tree (93.3% R²), and K-Nearest Neighbors (91.9% R²) — to forecast temperature 6 hours ahead. These predictions are then classified into heat risk categories: Normal, Moderate, High, and Dangerous. Switch between models and compare their performance on the ML Models page.</p>
+                        
+                        <h6><i class="bi bi-envelope-paper"></i> Flexible Alert System</h6>
+                        <p>Send heat alerts your way — manually trigger instant email notifications with 6-hour ML forecasts to any recipient, or schedule automatic recurring alerts at your preferred time intervals. Select locations, set your time gap, and let HeatWatch handle the rest.</p>
+                        
+                        <h6><i class="bi bi-database"></i> Data-Driven Insights</h6>
+                        <p>All weather readings, risk classifications, ML predictions, and alert logs are stored in a structured database. This continuously growing dataset of real historical weather data serves as a foundation for future model retraining, climate research, and policy-making.</p>
+                        
+                        <h6><i class="bi bi-shield-check"></i> Why It Matters</h6>
+                        <p>The Philippines faces increasing heat-related health risks due to climate change. HeatWatch empowers local governments, emergency responders, and communities with actionable data to make informed decisions, issue timely warnings, and ultimately save lives.</p>
+                        
+                        <p class="text-center mt-3"><small class="text-muted">Built by Engr. Brian Ezekiel D. Batalon, ECE, ECT, SO2</small></p>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn-modern" data-bs-dismiss="modal">Get Started</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Mobile overlay -->
+    <div class="sidebar-overlay" id="sidebar-overlay" onclick="closeSidebar()"></div>
+    
+    <!-- Modern Sidebar Navigation -->
+    <div class="app-container">
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <div class="logo">
+                    <div class="logo-icon">
+                        <i class="bi bi-thermometer-half"></i>
+                    </div>
+                    <div class="logo-text">
+                        <h1>HeatWatch</h1>
+                        <span>Rizal Province</span>
+                    </div>
+                </div>
+                <button class="sidebar-close-btn" onclick="closeSidebar()">
+                    <i class="bi bi-x-lg"></i>
+                </button>
+            </div>
+            
+            <nav class="sidebar-nav">
+                <a href="{{ url_for('main.index') }}" class="nav-item {% if request.endpoint == 'main.index' %}active{% endif %}" onclick="closeSidebar()">
+                    <i class="bi bi-grid-1x2"></i>
+                    <span>Dashboard</span>
+                </a>
+                <a href="{{ url_for('main.map_view') }}" class="nav-item {% if request.endpoint == 'main.map_view' %}active{% endif %}" onclick="closeSidebar()">
+                    <i class="bi bi-map"></i>
+                    <span>Map View</span>
+                </a>
+                <a href="{{ url_for('main.analytics') }}" class="nav-item {% if request.endpoint == 'main.analytics' %}active{% endif %}" onclick="closeSidebar()">
+                    <i class="bi bi-bar-chart-line"></i>
+                    <span>Analytics</span>
+                </a>
+                <a href="{{ url_for('main.alerts') }}" class="nav-item {% if request.endpoint == 'main.alerts' %}active{% endif %}" onclick="closeSidebar()">
+                    <i class="bi bi-bell"></i>
+                    <span>Alert Logs</span>
+                </a>
+                <a href="{{ url_for('main.models_page') }}" class="nav-item {% if request.endpoint == 'main.models_page' %}active{% endif %}" onclick="closeSidebar()">
+                    <i class="bi bi-cpu"></i>
+                    <span>ML Models</span>
+                </a>
+                <a href="{{ url_for('main.history') }}" class="nav-item {% if request.endpoint == 'main.history' %}active{% endif %}" onclick="closeSidebar()">
+                    <i class="bi bi-clock-history"></i>
+                    <span>History</span>
+                </a>
+            </nav>
+            
+            <div class="sidebar-footer">
+                <div class="weather-badge">
+                    <i class="bi bi-cloud-sun"></i>
+                    <span>Open-Meteo</span>
+                </div>
+                <div class="developer-credit">
+                    <i class="bi bi-code-square"></i>
+                    <span>Built by</span>
+                    <strong>Engr. Brian Ezekiel D. Batalon</strong>
+                    <span class="credentials">ECE, ECT, SO2</span>
+                </div>
+                <div class="time-display" id="sidebar-time"></div>
+            </div>
+        </aside>
+        
+        <main class="main-content" id="main-content">
+            <header class="top-bar">
+                <button class="hamburger-btn" onclick="toggleSidebar()" aria-label="Menu">
+                    <i class="bi bi-list"></i>
+                </button>
+                <div class="page-title">
+                    {% block page_title %}Dashboard{% endblock %}
+                </div>
+                <div class="header-actions">
+                    <button class="btn-icon" onclick="showWelcomeModal()" title="About HeatWatch">
+                        <i class="bi bi-info-circle"></i>
+                    </button>
+                    <button class="btn-icon" onclick="location.reload()" title="Refresh">
+                        <i class="bi bi-arrow-clockwise"></i>
+                    </button>
+                    <div class="status-indicator">
+                        <span class="pulse-dot"></span>
+                        <span>Live Monitoring</span>
+                    </div>
+                </div>
+            </header>
+            
+            <div class="content-wrapper">
+                {% block content %}{% endblock %}
+            </div>
+        </main>
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <!-- Leaflet JS -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    
+    <script>
+        // Update time display
+        function updateSidebarTime() {
+            const now = new Date();
+            const options = { 
+                timeZone: 'Asia/Manila',
+                hour12: false,
+                hour: '2-digit',
+                minute: '2-digit',
+                second: '2-digit'
+            };
+            document.getElementById('sidebar-time').textContent = now.toLocaleTimeString('en-PH', options);
+        }
+        updateSidebarTime();
+        setInterval(updateSidebarTime, 1000);
+        
+        // Sidebar toggle for mobile
+        function toggleSidebar() {
+            document.getElementById('sidebar').classList.toggle('open');
+            document.getElementById('sidebar-overlay').classList.toggle('show');
+        }
+        
+        function closeSidebar() {
+            document.getElementById('sidebar').classList.remove('open');
+            document.getElementById('sidebar-overlay').classList.remove('show');
+        }
+        
+        // Show welcome modal (can be called from anywhere)
+        function showWelcomeModal() {
+            const welcomeModal = new bootstrap.Modal(document.getElementById('welcomeModal'));
+            welcomeModal.show();
+        }
+        
+        // Welcome modal - show on Dashboard every visit
+        document.addEventListener('DOMContentLoaded', function() {
+            if (window.location.pathname === '/' || window.location.pathname === '') {
+                showWelcomeModal();
+            }
+        });
+    </script>
+    
+    {% block extra_js %}{% endblock %}
+</body>
+</html>

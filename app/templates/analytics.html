@@ -1,0 +1,593 @@
+{% extends "base.html" %}
+
+{% block title %}Analytics{% endblock %}
+{% block page_title %}Heat Risk Analytics{% endblock %}
+
+{% block content %}
+<div class="analytics-container">
+    
+    <!-- KPI Cards -->
+    <div class="kpi-grid">
+        <div class="kpi-card">
+            <div class="kpi-icon" style="background: linear-gradient(135deg, #2563eb, #3b82f6);">
+                <i class="bi bi-database"></i>
+            </div>
+            <div class="kpi-content">
+                <div class="kpi-value" id="total-readings">-</div>
+                <div class="kpi-label">Total Readings (24h)</div>
+                <div class="kpi-trend positive">
+                    <i class="bi bi-arrow-up"></i> +12%
+                </div>
+            </div>
+        </div>
+        
+        <div class="kpi-card">
+            <div class="kpi-icon" style="background: linear-gradient(135deg, #f59e0b, #fbbf24);">
+                <i class="bi bi-thermometer-half"></i>
+            </div>
+            <div class="kpi-content">
+                <div class="kpi-value" id="avg-temperature">-</div>
+                <div class="kpi-label">Average Temperature</div>
+                <div class="kpi-trend">Rizal Province</div>
+            </div>
+        </div>
+        
+        <div class="kpi-card">
+            <div class="kpi-icon" style="background: linear-gradient(135deg, #06b6d4, #22d3ee);">
+                <i class="bi bi-droplet-half"></i>
+            </div>
+            <div class="kpi-content">
+                <div class="kpi-value" id="avg-humidity">-</div>
+                <div class="kpi-label">Average Humidity</div>
+                <div class="kpi-trend">24h Period</div>
+            </div>
+        </div>
+        
+        <div class="kpi-card">
+            <div class="kpi-icon" style="background: linear-gradient(135deg, #ef4444, #f87171);">
+                <i class="bi bi-fire"></i>
+            </div>
+            <div class="kpi-content">
+                <div class="kpi-value" id="max-temperature">-</div>
+                <div class="kpi-label">Maximum Temperature</div>
+                <div class="kpi-trend critical">Peak Value</div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Charts Row 1 -->
+    <div class="charts-row">
+        <div class="chart-card">
+            <div class="chart-header">
+                <div class="chart-title">
+                    <i class="bi bi-pie-chart"></i>
+                    <span>Risk Distribution</span>
+                </div>
+                <span class="chart-subtitle">Last 24 Hours</span>
+            </div>
+            <div class="chart-body">
+                <canvas id="riskPieChart"></canvas>
+            </div>
+        </div>
+        
+        <div class="chart-card">
+            <div class="chart-header">
+                <div class="chart-title">
+                    <i class="bi bi-bar-chart"></i>
+                    <span>Hottest Locations</span>
+                </div>
+                <span class="chart-subtitle">Top 5 Areas</span>
+            </div>
+            <div class="chart-body">
+                <canvas id="hottestLocationsChart"></canvas>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Charts Row 2 -->
+    <div class="charts-row">
+        <div class="chart-card">
+            <div class="chart-header">
+                <div class="chart-title">
+                    <i class="bi bi-graph-up"></i>
+                    <span>Risk by Location</span>
+                </div>
+                <span class="chart-subtitle">Cumulative Distribution</span>
+            </div>
+            <div class="chart-body">
+                <canvas id="locationBarChart"></canvas>
+            </div>
+        </div>
+        
+        <div class="chart-card">
+            <div class="chart-header">
+                <div class="chart-title">
+                    <i class="bi bi-scatter-chart"></i>
+                    <span>Temperature vs Humidity</span>
+                </div>
+                <span class="chart-subtitle">Correlation Analysis</span>
+            </div>
+            <div class="chart-body">
+                <canvas id="tempHumidityChart"></canvas>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Location Statistics Table -->
+    <div class="modern-card">
+        <div class="card-header-modern">
+            <div class="card-title">
+                <i class="bi bi-table"></i>
+                <span>Detailed Location Statistics</span>
+            </div>
+            <button class="btn-modern-outline btn-sm-export" onclick="exportAnalytics()">
+                <i class="bi bi-download"></i> Export CSV
+            </button>
+        </div>
+        <div class="table-wrapper">
+            <table class="modern-table">
+                <thead>
+                    <tr>
+                        <th>Location</th>
+                        <th>Avg Temp</th>
+                        <th>Max Temp</th>
+                        <th>Avg Humidity</th>
+                        <th>Risk Distribution</th>
+                        <th>Alert Count</th>
+                    </tr>
+                </thead>
+                <tbody id="location-stats-body">
+                    <tr>
+                        <td colspan="6" class="loading-cell">
+                            <div class="loading-spinner">
+                                <i class="bi bi-arrow-repeat"></i> Loading statistics...
+                            </div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<style>
+    .analytics-container {
+        display: flex;
+        flex-direction: column;
+        gap: 24px;
+    }
+    
+    .kpi-grid {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 20px;
+    }
+    
+    .kpi-card {
+        background: var(--bg-secondary);
+        border: 1px solid var(--border-color);
+        border-radius: 20px;
+        padding: 20px;
+        display: flex;
+        align-items: center;
+        gap: 16px;
+        transition: all 0.2s ease;
+    }
+    
+    .kpi-card:hover {
+        transform: translateY(-2px);
+        box-shadow: var(--shadow-lg);
+    }
+    
+    .kpi-icon {
+        width: 52px;
+        height: 52px;
+        border-radius: 16px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-size: 22px;
+    }
+    
+    .kpi-content {
+        flex: 1;
+    }
+    
+    .kpi-value {
+        font-size: 28px;
+        font-weight: 700;
+        color: var(--text-primary);
+        line-height: 1.2;
+    }
+    
+    .kpi-label {
+        font-size: 13px;
+        color: var(--text-secondary);
+        margin: 4px 0;
+    }
+    
+    .kpi-trend {
+        font-size: 12px;
+        display: flex;
+        align-items: center;
+        gap: 4px;
+    }
+    
+    .kpi-trend.positive {
+        color: var(--risk-low);
+    }
+    
+    .kpi-trend.critical {
+        color: var(--risk-extreme);
+    }
+    
+    .charts-row {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 20px;
+    }
+    
+    .chart-card {
+        background: var(--bg-secondary);
+        border: 1px solid var(--border-color);
+        border-radius: 20px;
+        overflow: hidden;
+    }
+    
+    .chart-header {
+        padding: 18px 24px;
+        border-bottom: 1px solid var(--border-color);
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+    }
+    
+    .chart-title {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        font-weight: 600;
+        color: var(--text-primary);
+    }
+    
+    .chart-title i {
+        color: var(--primary);
+    }
+    
+    .chart-subtitle {
+        font-size: 12px;
+        color: var(--text-muted);
+        background: var(--bg-primary);
+        padding: 4px 10px;
+        border-radius: 20px;
+    }
+    
+    .chart-body {
+        padding: 24px;
+        min-height: 280px;
+    }
+    
+    .risk-distribution-bar {
+        display: flex;
+        height: 6px;
+        border-radius: 3px;
+        overflow: hidden;
+        width: 100px;
+        margin-top: 4px;
+    }
+    
+    .risk-bar-segment {
+        height: 100%;
+    }
+    
+    .risk-bar-segment.low {
+        background: var(--risk-low);
+    }
+    
+    .risk-bar-segment.moderate {
+        background: var(--risk-moderate);
+    }
+    
+    .risk-bar-segment.high {
+        background: var(--risk-high);
+    }
+    
+    .risk-bar-segment.extreme {
+        background: var(--risk-extreme);
+    }
+    
+    .alert-badge {
+        background: rgba(239, 68, 68, 0.1);
+        color: var(--risk-extreme);
+        padding: 2px 8px;
+        border-radius: 20px;
+        font-size: 12px;
+        font-weight: 600;
+    }
+    
+    .btn-sm-export {
+        padding: 8px 16px;
+        font-size: 13px;
+    }
+    
+    @media (max-width: 1200px) {
+        .kpi-grid {
+            grid-template-columns: repeat(2, 1fr);
+        }
+        
+        .charts-row {
+            grid-template-columns: 1fr;
+        }
+    }
+    
+    @media (max-width: 640px) {
+        .kpi-grid {
+            grid-template-columns: 1fr;
+        }
+        
+        .btn-sm-export {
+            padding: 6px 12px;
+            font-size: 12px;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    let charts = {};
+    
+    async function loadAnalyticsData() {
+        try {
+            const [statsResponse, readingsResponse, alertsResponse] = await Promise.all([
+                fetch('/api/stats'),
+                fetch('/api/recent-readings?limit=500'),
+                fetch('/api/alert-history?limit=100')
+            ]);
+            
+            const stats = await statsResponse.json();
+            const readings = await readingsResponse.json();
+            const alerts = await alertsResponse.json();
+            
+            updateKPIs(stats);
+            updateCharts(stats, readings);
+            updateLocationTable(stats, alerts);
+            
+        } catch (error) {
+            console.error('Error loading analytics:', error);
+        }
+    }
+    
+    function updateKPIs(stats) {
+        document.getElementById('total-readings').textContent = stats.total_readings || 0;
+        document.getElementById('avg-temperature').textContent = stats.avg_temperature ? `${stats.avg_temperature}°C` : 'N/A';
+        document.getElementById('avg-humidity').textContent = stats.avg_humidity ? `${stats.avg_humidity}%` : 'N/A';
+        document.getElementById('max-temperature').textContent = stats.max_temperature ? `${stats.max_temperature}°C` : 'N/A';
+    }
+    
+    function updateCharts(stats, readings) {
+        Object.values(charts).forEach(chart => chart.destroy?.());
+        
+        // Risk Pie Chart
+        const pieCtx = document.getElementById('riskPieChart').getContext('2d');
+        charts.riskPie = new Chart(pieCtx, {
+            type: 'doughnut',
+            data: {
+                labels: ['Normal', 'Moderate', 'High', 'Dangerous'],
+                datasets: [{
+                    data: [
+                        stats.risk_counts?.NORMAL || 0,
+                        stats.risk_counts?.MODERATE || 0,
+                        stats.risk_counts?.HIGH || 0,
+                        stats.risk_counts?.DANGEROUS || 0
+                    ],
+                    backgroundColor: ['#10b981', '#f59e0b', '#f97316', '#ef4444'],
+                    borderWidth: 0,
+                    borderRadius: 8
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: true,
+                cutout: '65%',
+                plugins: {
+                    legend: {
+                        position: 'bottom',
+                        labels: {
+                            padding: 20,
+                            usePointStyle: true,
+                            font: { size: 12, family: 'Inter' }
+                        }
+                    }
+                }
+            }
+        });
+        
+        // Hottest Locations Chart
+        const barCtx = document.getElementById('hottestLocationsChart').getContext('2d');
+        const locations = stats.location_stats || [];
+        charts.hottest = new Chart(barCtx, {
+            type: 'bar',
+            data: {
+                labels: locations.map(l => l.name.split(',')[0]),
+                datasets: [{
+                    label: 'Avg Temperature (°C)',
+                    data: locations.map(l => l.avg_temp),
+                    backgroundColor: '#f97316',
+                    borderRadius: 8,
+                    barPercentage: 0.6
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: true,
+                plugins: {
+                    legend: { display: false }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: false,
+                        min: 20,
+                        grid: { color: '#e2e8f0' }
+                    },
+                    x: {
+                        grid: { display: false }
+                    }
+                }
+            }
+        });
+        
+        // Location Risk Distribution
+        const locationCtx = document.getElementById('locationBarChart').getContext('2d');
+        const locationRiskData = processLocationRiskData(readings);
+        charts.locationBar = new Chart(locationCtx, {
+            type: 'bar',
+            data: locationRiskData,
+            options: {
+                responsive: true,
+                maintainAspectRatio: true,
+                scales: {
+                    x: { stacked: true, grid: { display: false } },
+                    y: { stacked: true, grid: { color: '#e2e8f0' } }
+                },
+                plugins: {
+                    legend: {
+                        position: 'bottom',
+                        labels: { usePointStyle: true, padding: 15 }
+                    }
+                }
+            }
+        });
+        
+        // Temperature vs Humidity Scatter
+        const scatterCtx = document.getElementById('tempHumidityChart').getContext('2d');
+        charts.scatter = new Chart(scatterCtx, {
+            type: 'scatter',
+            data: processScatterData(readings),
+            options: {
+                responsive: true,
+                maintainAspectRatio: true,
+                scales: {
+                    x: { 
+                        title: { display: true, text: 'Temperature (°C)' },
+                        grid: { color: '#e2e8f0' }
+                    },
+                    y: { 
+                        title: { display: true, text: 'Humidity (%)' },
+                        grid: { color: '#e2e8f0' }
+                    }
+                },
+                plugins: {
+                    legend: {
+                        position: 'bottom',
+                        labels: { usePointStyle: true }
+                    }
+                }
+            }
+        });
+    }
+    
+    function processLocationRiskData(readings) {
+        const locations = {};
+        readings.forEach(r => {
+            if (!locations[r.location_name]) {
+                locations[r.location_name] = { NORMAL: 0, MODERATE: 0, HIGH: 0, DANGEROUS: 0 };
+            }
+            locations[r.location_name][r.risk_level] = (locations[r.location_name][r.risk_level] || 0) + 1;
+        });
+        
+        const topLocations = Object.keys(locations).slice(0, 8);
+        
+        return {
+            labels: topLocations.map(l => l.split(',')[0]),
+            datasets: [
+                { label: 'Normal', data: topLocations.map(l => locations[l].NORMAL || 0), backgroundColor: '#10b981' },
+                { label: 'Moderate', data: topLocations.map(l => locations[l].MODERATE || 0), backgroundColor: '#f59e0b' },
+                { label: 'High', data: topLocations.map(l => locations[l].HIGH || 0), backgroundColor: '#f97316' },
+                { label: 'Dangerous', data: topLocations.map(l => locations[l].DANGEROUS || 0), backgroundColor: '#ef4444' }
+            ]
+        };
+    }
+    
+    function processScatterData(readings) {
+        const byRisk = { 'NORMAL': [], 'MODERATE': [], 'HIGH': [], 'DANGEROUS': [] };
+        
+        readings.forEach(r => {
+            if (r.temperature && r.humidity) {
+                byRisk[r.risk_level]?.push({ x: r.temperature, y: r.humidity });
+            }
+        });
+        
+        return {
+            datasets: [
+                { label: 'Normal', data: byRisk.NORMAL, backgroundColor: '#10b981', pointRadius: 5, pointHoverRadius: 8 },
+                { label: 'Moderate', data: byRisk.MODERATE, backgroundColor: '#f59e0b', pointRadius: 5, pointHoverRadius: 8 },
+                { label: 'High', data: byRisk.HIGH, backgroundColor: '#f97316', pointRadius: 5, pointHoverRadius: 8 },
+                { label: 'Dangerous', data: byRisk.DANGEROUS, backgroundColor: '#ef4444', pointRadius: 5, pointHoverRadius: 8 }
+            ]
+        };
+    }
+    
+    function updateLocationTable(stats, alerts) {
+        const tbody = document.getElementById('location-stats-body');
+        tbody.innerHTML = '';
+        
+        const locations = stats.location_stats || [];
+        const alertCounts = {};
+        alerts.forEach(a => { alertCounts[a.location_name] = (alertCounts[a.location_name] || 0) + 1; });
+        
+        locations.forEach(loc => {
+            const row = tbody.insertRow();
+            row.insertCell(0).textContent = loc.name;
+            row.insertCell(1).textContent = `${loc.avg_temp}°C`;
+            row.insertCell(2).textContent = `${loc.max_temp}°C`;
+            row.insertCell(3).textContent = `${loc.avg_humidity}%`;
+            
+            const distCell = row.insertCell(4);
+            distCell.innerHTML = `
+                <div class="risk-distribution-bar">
+                    <div class="risk-bar-segment low" style="width: 40%;"></div>
+                    <div class="risk-bar-segment moderate" style="width: 30%;"></div>
+                    <div class="risk-bar-segment high" style="width: 20%;"></div>
+                    <div class="risk-bar-segment extreme" style="width: 10%;"></div>
+                </div>
+            `;
+            
+            const alertCell = row.insertCell(5);
+            const alertCount = alertCounts[loc.name] || 0;
+            alertCell.innerHTML = alertCount > 0 ? 
+                `<span class="alert-badge">${alertCount} alerts</span>` : 
+                '<span style="color: var(--text-muted);">—</span>';
+        });
+    }
+    
+    function exportAnalytics() {
+        const table = document.querySelector('.modern-table');
+        if (!table) return;
+        
+        let csv = 'Location,Avg Temp,Max Temp,Avg Humidity,Alert Count\n';
+        const rows = document.querySelectorAll('#location-stats-body tr');
+        rows.forEach(row => {
+            const cells = row.querySelectorAll('td');
+            if (cells.length >= 4) {
+                const location = cells[0].textContent;
+                const avgTemp = cells[1].textContent;
+                const maxTemp = cells[2].textContent;
+                const avgHumidity = cells[3].textContent;
+                const alerts = cells[5]?.textContent.replace(' alerts', '') || '0';
+                csv += `"${location}","${avgTemp}","${maxTemp}","${avgHumidity}","${alerts}"\n`;
+            }
+        });
+        
+        const blob = new Blob([csv], { type: 'text/csv' });
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `heatwatch-analytics-${new Date().toISOString().split('T')[0]}.csv`;
+        a.click();
+    }
+    
+    loadAnalyticsData();
+</script>
+{% endblock %}
