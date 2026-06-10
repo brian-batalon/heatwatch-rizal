@@ -4,12 +4,12 @@ from email.mime.multipart import MIMEMultipart
 from flask import current_app
 from datetime import datetime, timedelta
 
-# Email Configuration
-ADMIN_EMAIL = "aztechworx@gmail.com"
-SMTP_SERVER = "smtp.gmail.com"
-SMTP_PORT = 587
-SENDER_EMAIL = "aztechworx@gmail.com"
-SENDER_PASSWORD = "auahlcddwxcjwf"
+# Email Configuration - Namecheap Private Email
+ADMIN_EMAIL = "info@aztechworx.xyz"
+SMTP_SERVER = "mail.privateemail.com"
+SMTP_PORT = 465
+SENDER_EMAIL = "info@aztechworx.xyz"
+SENDER_PASSWORD = "@AZTechworx2026"
 
 # Track last email sent per location to prevent spam
 _last_email_sent = {}  # {location_name: datetime}
@@ -36,8 +36,7 @@ class EmailService:
             msg['Subject'] = subject
             msg.attach(MIMEText(message_body, 'plain'))
             
-            with smtplib.SMTP(SMTP_SERVER, SMTP_PORT, timeout=10) as server:
-                server.starttls()
+            with smtplib.SMTP_SSL(SMTP_SERVER, SMTP_PORT, timeout=10) as server:
                 server.login(SENDER_EMAIL, SENDER_PASSWORD)
                 server.send_message(msg)
             
