@@ -9,7 +9,7 @@ ADMIN_EMAIL = "aztechworx@gmail.com"
 SMTP_SERVER = "smtp.gmail.com"
 SMTP_PORT = 587
 SENDER_EMAIL = "aztechworx@gmail.com"
-SENDER_PASSWORD = "axduiximoeaonhel"
+SENDER_PASSWORD = "auahlcddwxcjwf"
 
 # Track last email sent per location to prevent spam
 _last_email_sent = {}  # {location_name: datetime}
