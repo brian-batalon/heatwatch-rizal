@@ -36,6 +36,11 @@ def models_page():
     """ML Models comparison page"""
     return render_template('models.html', title='ML Models')
 
+@main.route('/history')
+def history():
+    """Weather history page"""
+    return render_template('history.html', title='History')
+
 @main.route('/api/current-weather')
 def get_current_weather():
     """API endpoint to fetch current weather for all monitored locations"""
@@ -92,7 +97,7 @@ def get_current_weather():
                 'success': True
             }
             
-            # Save to local SQLite database
+            # Save to database
             reading = WeatherReading(
                 location_name=data['name'],
                 latitude=data['lat'],
@@ -104,7 +109,7 @@ def get_current_weather():
             )
             db.session.add(reading)
             
-            # Also save to Supabase cloud database
+            # Also save to Supabase
             try:
                 supabase_service = SupabaseService()
                 supabase_service.save_weather_reading(
@@ -118,41 +123,6 @@ def get_current_weather():
                 )
             except Exception as e:
                 print(f"Supabase save error: {e}")
-            
-            # Check for alerts - current OR predicted risk
-            if risk_level in ['HIGH', 'DANGEROUS'] or predicted_risk in ['HIGH', 'DANGEROUS']:
-                email_service = EmailService()
-                alert_sent = email_service.check_and_send_heat_alert(
-                    location_name=data['name'],
-                    temperature=data['temperature'],
-                    humidity=data['humidity'],
-                    risk_level=risk_level,
-                    heat_index=heat_index
-                )
-                
-                # Log alert to local database
-                alert_log = AlertLog(
-                    location_name=data['name'],
-                    risk_level=risk_level,
-                    temperature=data['temperature'],
-                    humidity=data['humidity'],
-                    message=risk_info['description'],
-                    email_sent=alert_sent
-                )
-                db.session.add(alert_log)
-                
-                # Also save alert to Supabase
-                try:
-                    supabase_service.save_alert_log(
-                        location_name=data['name'],
-                        risk_level=risk_level,
-                        temperature=data['temperature'],
-                        humidity=data['humidity'],
-                        message=risk_info['description'],
-                        email_sent=alert_sent
-                    )
-                except Exception as e:
-                    print(f"Supabase alert save error: {e}")
         else:
             result = {
                 'name': data['name'],
@@ -220,14 +190,12 @@ def get_alert_history():
 @main.route('/api/stats')
 def get_stats():
     """API endpoint to get statistics for analytics"""
-    # Get last 24 hours readings
     yesterday = datetime.utcnow() - timedelta(hours=24)
     readings = WeatherReading.query.filter(WeatherReading.timestamp >= yesterday).all()
     
     if not readings:
         return jsonify({'message': 'No data available'})
     
-    # Calculate statistics
     locations = {}
     risk_counts = {'NORMAL': 0, 'MODERATE': 0, 'HIGH': 0, 'DANGEROUS': 0, 'UNKNOWN': 0}
     temperatures = []
@@ -245,7 +213,6 @@ def get_stats():
         temperatures.append(r.temperature)
         humidities.append(r.humidity)
     
-    # Location averages
     location_stats = []
     for name, data in locations.items():
         if data['temps']:
@@ -282,10 +249,7 @@ def send_custom_alert():
     predicted_risk = data.get('predicted_risk')
     
     if not recipient_email or not location_name:
-        return jsonify({
-            'success': False,
-            'message': 'Email and location are required'
-        }), 400
+        return jsonify({'success': False, 'message': 'Email and location are required'}), 400
     
     email_service = EmailService()
     sent = email_service.send_custom_alert(
@@ -300,22 +264,15 @@ def send_custom_alert():
     )
     
     if sent:
-        return jsonify({
-            'success': True,
-            'message': f'Alert sent to {recipient_email}'
-        })
+        return jsonify({'success': True, 'message': f'Alert sent to {recipient_email}'})
     else:
-        return jsonify({
-            'success': False,
-            'message': 'Failed to send email'
-        }), 500
+        return jsonify({'success': False, 'message': 'Failed to send email'}), 500
 
 @main.route('/api/model-info')
 def get_model_info():
     """API endpoint to get ML model information"""
     from app.ml_model import HeatRiskMLModel
     
-    # Read saved model preference
     model_file = os.path.join(current_app.instance_path, 'current_model.json')
     current_model = 'rf'
     if os.path.exists(model_file):
@@ -339,41 +296,8 @@ def switch_model():
     ml_model = HeatRiskMLModel()
     success = ml_model.switch_model(model_name)
     
-    # Save to file so it persists across requests
     model_file = os.path.join(current_app.instance_path, 'current_model.json')
     with open(model_file, 'w') as f:
         json.dump({'model': model_name}, f)
     
-    return jsonify({
-        'success': success,
-        'model': model_name,
-        'message': f'Switched to {model_name} model' if success else 'Failed to switch model'
-    })
-
-@main.route('/api/ml-metrics')
-def get_ml_metrics():
-    """API endpoint to get ML metrics data"""
-    import json
-    
-    metrics_file = os.path.join(current_app.instance_path, 'all_metrics.json')
-    if os.path.exists(metrics_file):
-        with open(metrics_file, 'r') as f:
-            return jsonify(json.load(f))
-    return jsonify({})
-
-
-@main.route('/api/roc-data')
-def get_roc_data():
-    """API endpoint to get ROC curve data"""
-    import json
-    
-    roc_file = os.path.join(current_app.instance_path, 'roc_data.json')
-    if os.path.exists(roc_file):
-        with open(roc_file, 'r') as f:
-            return jsonify(json.load(f))
-    return jsonify({})
-
-@main.route('/history')
-def history():
-    """Weather history page"""
-    return render_template('history.html', title='History')
+    return jsonify({'success': success, 'model': model_name, 'message': f'Switched to {model_name} model' if success else 'Failed to switch model'})
