@@ -1,6 +1,6 @@
 import requests
 from datetime import datetime, timedelta
-from concurrent.futures import ThreadPoolExecutor, as_completed
+import time
 
 # Simple cache
 _cache = {
@@ -11,7 +11,7 @@ _cache = {
 class WeatherService:
     def __init__(self, api_url="https://api.open-meteo.com/v1/forecast"):
         self.api_url = api_url
-        self.cache_duration = 120  # Cache for 2 minutes
+        self.cache_duration = 300  # Cache for 5 minutes
     
     def fetch_current_weather(self, lat, lon):
         """Fetch current weather data for given coordinates"""
@@ -23,7 +23,7 @@ class WeatherService:
         }
         
         try:
-            response = requests.get(self.api_url, params=params, timeout=15)
+            response = requests.get(self.api_url, params=params, timeout=20)
             response.raise_for_status()
             data = response.json()
             
@@ -44,7 +44,7 @@ class WeatherService:
             }
     
     def fetch_multiple_locations(self, locations):
-        """Fetch weather data for multiple locations IN PARALLEL, with caching"""
+        """Fetch weather data one at a time with caching"""
         
         # Check cache
         if _cache['data'] is not None and _cache['timestamp'] is not None:
@@ -53,30 +53,28 @@ class WeatherService:
                 print(f"📦 Using cached data ({int(age)}s old)")
                 return _cache['data']
         
-        print("🔄 Fetching fresh weather data...")
+        print("🔄 Fetching fresh weather data (sequential)...")
         results = []
         
-        with ThreadPoolExecutor(max_workers=2) as executor:
-            future_to_loc = {
-                executor.submit(self.fetch_current_weather, loc['lat'], loc['lon']): loc 
-                for loc in locations
-            }
-            
-            for future in as_completed(future_to_loc):
-                loc = future_to_loc[future]
-                weather = future.result()
-                results.append({
-                    'name': loc['name'],
-                    'lat': loc['lat'],
-                    'lon': loc['lon'],
-                    'temperature': weather['temperature'],
-                    'humidity': weather['humidity'],
-                    'timestamp': weather['timestamp'],
-                    'success': weather['success']
-                })
+        for i, loc in enumerate(locations):
+            print(f"  📡 {i+1}/{len(locations)}: {loc['name']}")
+            weather = self.fetch_current_weather(loc['lat'], loc['lon'])
+            results.append({
+                'name': loc['name'],
+                'lat': loc['lat'],
+                'lon': loc['lon'],
+                'temperature': weather['temperature'],
+                'humidity': weather['humidity'],
+                'timestamp': weather['timestamp'],
+                'success': weather['success']
+            })
+            # Small delay between requests to avoid rate limiting
+            if i < len(locations) - 1:
+                time.sleep(0.3)
         
         # Save to cache
         _cache['data'] = results
         _cache['timestamp'] = datetime.utcnow() + timedelta(hours=8)
         
+        print(f"✅ Fetched {len(results)} locations")
         return results
