@@ -70,7 +70,7 @@ class WeatherService:
             })
             # Small delay between requests to avoid rate limiting
             if i < len(locations) - 1:
-                time.sleep(0.3)
+                time.sleep(0.5)
         
         # Save to cache
         _cache['data'] = results
