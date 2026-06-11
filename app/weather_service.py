@@ -11,7 +11,7 @@ _cache = {
 class WeatherService:
     def __init__(self, api_url="https://api.open-meteo.com/v1/forecast"):
         self.api_url = api_url
-        self.cache_duration = 300  # Cache for 5 minutes
+        self.cache_duration = 600  # Cache for 10 minutes
     
     def fetch_current_weather(self, lat, lon):
         """Fetch current weather data for given coordinates"""
@@ -44,7 +44,7 @@ class WeatherService:
             }
     
     def fetch_multiple_locations(self, locations):
-        """Fetch weather data one at a time with caching"""
+        """Fetch weather data one at a time with caching and retry"""
         
         # Check cache
         if _cache['data'] is not None and _cache['timestamp'] is not None:
@@ -53,12 +53,19 @@ class WeatherService:
                 print(f"📦 Using cached data ({int(age)}s old)")
                 return _cache['data']
         
-        print("🔄 Fetching fresh weather data (sequential)...")
+        print("🔄 Fetching fresh weather data (sequential with retry)...")
         results = []
         
         for i, loc in enumerate(locations):
             print(f"  📡 {i+1}/{len(locations)}: {loc['name']}")
             weather = self.fetch_current_weather(loc['lat'], loc['lon'])
+            
+            # Retry once if failed
+            if not weather['success']:
+                time.sleep(1)
+                print(f"  🔄 Retrying {loc['name']}...")
+                weather = self.fetch_current_weather(loc['lat'], loc['lon'])
+            
             results.append({
                 'name': loc['name'],
                 'lat': loc['lat'],
@@ -68,13 +75,13 @@ class WeatherService:
                 'timestamp': weather['timestamp'],
                 'success': weather['success']
             })
-            # Small delay between requests to avoid rate limiting
-            if i < len(locations) - 1:
-                time.sleep(0.5)
+            time.sleep(0.5)
         
         # Save to cache
         _cache['data'] = results
         _cache['timestamp'] = datetime.utcnow() + timedelta(hours=8)
         
-        print(f"✅ Fetched {len(results)} locations")
+        # Count success
+        success_count = sum(1 for r in results if r['success'])
+        print(f"✅ Loaded {success_count}/{len(results)} locations")
         return results
