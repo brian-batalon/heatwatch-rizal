@@ -23,7 +23,7 @@ class WeatherService:
         }
         
         try:
-            response = requests.get(self.api_url, params=params, timeout=8)
+            response = requests.get(self.api_url, params=params, timeout=15)
             response.raise_for_status()
             data = response.json()
             
@@ -56,7 +56,7 @@ class WeatherService:
         print("🔄 Fetching fresh weather data...")
         results = []
         
-        with ThreadPoolExecutor(max_workers=5) as executor:
+        with ThreadPoolExecutor(max_workers=2) as executor:
             future_to_loc = {
                 executor.submit(self.fetch_current_weather, loc['lat'], loc['lon']): loc 
                 for loc in locations
@@ -79,4 +79,4 @@ class WeatherService:
         _cache['data'] = results
         _cache['timestamp'] = datetime.utcnow() + timedelta(hours=8)
         
-        return results  
+        return results
