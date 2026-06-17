@@ -23,6 +23,12 @@
         </div>
         
         <div class="map-actions">
+            <select class="filter-select" id="map-layer" onchange="changeMapLayer()" style="min-width: 130px;">
+                <option value="satellite">🛰️ Satellite</option>
+                <option value="light">☀️ Light</option>
+                <option value="dark">🌙 Dark</option>
+                <option value="terrain">⛰️ Terrain</option>
+            </select>
             <div class="map-status" id="map-status">
                 <span class="status-dot"></span>
                 <span>Live Data</span>
@@ -451,105 +457,32 @@
     }
     
     @media (max-width: 1024px) {
-        .map-layout {
-            flex-direction: column;
-        }
-        
-        .map-sidebar {
-            width: 100% !important;
-            max-height: none;
-        }
+        .map-layout { flex-direction: column; }
+        .map-sidebar { width: 100% !important; max-height: none; }
     }
     
     @media (max-width: 768px) {
-        .map-page-container {
-            height: auto;
-            min-height: auto;
-        }
-        
-        #full-map {
-            height: 300px;
-        }
-        
-        .map-controls-bar {
-            flex-direction: column;
-            align-items: stretch;
-        }
-        
-        .filter-group {
-            flex-direction: column;
-        }
-        
-        .filter-select {
-            width: 100%;
-            min-width: auto;
-        }
-        
-        .map-actions {
-            justify-content: space-between;
-        }
-        
-        .map-legend-modern {
-            bottom: 10px;
-            right: 10px;
-            padding: 10px;
-            min-width: 140px;
-        }
-        
-        .map-legend-modern h6 {
-            font-size: 11px;
-        }
-        
-        .legend-item {
-            font-size: 11px;
-        }
-        
-        .map-sidebar {
-            width: 100% !important;
-            max-height: none;
-        }
-        
-        .location-panel {
-            max-height: none;
-            overflow: visible;
-        }
-        
-        .location-list {
-            max-height: none;
-            overflow-y: visible;
-        }
+        .map-page-container { height: auto; min-height: auto; }
+        #full-map { height: 300px; }
+        .map-controls-bar { flex-direction: column; align-items: stretch; }
+        .filter-group { flex-direction: column; }
+        .filter-select { width: 100%; min-width: auto; }
+        .map-actions { justify-content: space-between; }
+        .map-legend-modern { bottom: 10px; right: 10px; padding: 10px; min-width: 140px; }
+        .map-legend-modern h6 { font-size: 11px; }
+        .legend-item { font-size: 11px; }
+        .map-sidebar { width: 100% !important; max-height: none; }
+        .location-panel { max-height: none; overflow: visible; }
+        .location-list { max-height: none; overflow-y: visible; }
     }
     
     @media (max-width: 480px) {
-        #full-map {
-            height: 250px;
-        }
-        
-        .map-status span:last-child {
-            display: none;
-        }
-        
-        .map-legend-modern {
-            bottom: 5px;
-            right: 5px;
-            padding: 8px;
-            min-width: 120px;
-        }
-        
-        .map-legend-modern h6 {
-            font-size: 10px;
-            margin-bottom: 8px;
-        }
-        
-        .legend-item {
-            font-size: 10px;
-            gap: 6px;
-        }
-        
-        .legend-color {
-            width: 12px;
-            height: 12px;
-        }
+        #full-map { height: 250px; }
+        .map-status span:last-child { display: none; }
+        .map-legend-modern { bottom: 5px; right: 5px; padding: 8px; min-width: 120px; }
+        .map-legend-modern h6 { font-size: 10px; margin-bottom: 8px; }
+        .legend-item { font-size: 10px; gap: 6px; }
+        .legend-color { width: 12px; height: 12px; }
     }
 </style>
 {% endblock %}
@@ -558,9 +491,23 @@
 <script>
     const fullMap = L.map('full-map').setView([14.5764, 121.0851], 11);
     
-    L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
-        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
-    }).addTo(fullMap);
+    // Map layers
+    const mapLayers = {
+        satellite: L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', { attribution: '&copy; Esri' }),
+        light: L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', { attribution: '&copy; OpenStreetMap' }),
+        dark: L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', { attribution: '&copy; OpenStreetMap' }),
+        terrain: L.tileLayer('https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png', { attribution: '&copy; OpenTopoMap' })
+    };
+    
+    let currentLayer = mapLayers['satellite'];
+    currentLayer.addTo(fullMap);
+    
+    function changeMapLayer() {
+        const selected = document.getElementById('map-layer').value;
+        fullMap.removeLayer(currentLayer);
+        currentLayer = mapLayers[selected];
+        currentLayer.addTo(fullMap);
+    }
     
     let locationMarkers = {};
     let currentData = [];
@@ -599,7 +546,6 @@
         }
     }
     
-    // Filter functionality
     document.getElementById('risk-filter').addEventListener('change', applyMapFilters);
     document.getElementById('location-filter').addEventListener('change', applyMapFilters);
     
@@ -625,73 +571,21 @@
         const size = location.risk_level === 'DANGEROUS' ? 40 : location.risk_level === 'HIGH' ? 36 : 32;
         const icon = L.divIcon({
             className: 'custom-marker',
-            html: `
-                <div style="
-                    width: ${size}px;
-                    height: ${size}px;
-                    background: ${location.risk_color};
-                    border-radius: 12px;
-                    border: 3px solid white;
-                    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-                    display: flex;
-                    align-items: center;
-                    justify-content: center;
-                    color: white;
-                    font-size: ${size > 32 ? '13px' : '12px'};
-                    font-weight: 600;
-                ">
-                    ${location.temperature}°
-                </div>
-            `,
+            html: `<div style="width: ${size}px; height: ${size}px; background: ${location.risk_color}; border-radius: 12px; border: 3px solid white; box-shadow: 0 4px 12px rgba(0,0,0,0.15); display: flex; align-items: center; justify-content: center; color: white; font-size: ${size > 32 ? '13px' : '12px'}; font-weight: 600;">${location.temperature}°</div>`,
             iconSize: [size, size],
             iconAnchor: [size/2, size/2],
             popupAnchor: [0, -size/2]
         });
-        
-        return L.marker([location.lat, location.lon], { icon })
-            .bindPopup(createPopupContent(location));
+        return L.marker([location.lat, location.lon], { icon }).bindPopup(createPopupContent(location));
     }
     
     function createPopupContent(location) {
-        return `
-            <div style="min-width: 250px; padding: 8px;">
-                <h6 style="margin-bottom: 12px; font-weight: 700;">${location.name}</h6>
-                <div style="display: grid; gap: 8px; margin-bottom: 16px;">
-                    <div style="display: flex; justify-content: space-between;">
-                        <span>🌡️ Temperature</span>
-                        <strong>${location.temperature}°C</strong>
-                    </div>
-                    <div style="display: flex; justify-content: space-between;">
-                        <span>💧 Humidity</span>
-                        <strong>${location.humidity}%</strong>
-                    </div>
-                    <div style="display: flex; justify-content: space-between;">
-                        <span>🔥 Heat Index</span>
-                        <strong>${location.heat_index}°C</strong>
-                    </div>
-                </div>
-                <div style="
-                    padding: 8px 12px;
-                    background: ${location.risk_color}15;
-                    border-radius: 8px;
-                    color: ${location.risk_color};
-                    font-weight: 600;
-                    font-size: 13px;
-                    margin-bottom: 12px;
-                ">
-                    ⚠️ ${location.risk_level} Risk - ${location.risk_description}
-                </div>
-                <button class="btn-modern btn-sm w-100" onclick="openSendAlert('${location.name}', ${location.temperature}, ${location.humidity}, '${location.risk_level}', ${location.heat_index})" style="background: var(--primary); color: white; border: none; border-radius: 10px; padding: 8px 16px; font-size: 13px; cursor: pointer; font-weight: 500;">
-                    <i class="bi bi-envelope"></i> Send Alert to Email
-                </button>
-            </div>
-        `;
+        return `<div style="min-width: 250px; padding: 8px;"><h6 style="margin-bottom: 12px; font-weight: 700;">${location.name}</h6><div style="display: grid; gap: 8px; margin-bottom: 16px;"><div style="display: flex; justify-content: space-between;"><span>🌡️ Temperature</span><strong>${location.temperature}°C</strong></div><div style="display: flex; justify-content: space-between;"><span>💧 Humidity</span><strong>${location.humidity}%</strong></div><div style="display: flex; justify-content: space-between;"><span>🔥 Heat Index</span><strong>${location.heat_index}°C</strong></div></div><div style="padding: 8px 12px; background: ${location.risk_color}15; border-radius: 8px; color: ${location.risk_color}; font-weight: 600; font-size: 13px; margin-bottom: 12px;">⚠️ ${location.risk_level} Risk - ${location.risk_description}</div><button class="btn-modern btn-sm w-100" onclick="openSendAlert('${location.name}', ${location.temperature}, ${location.humidity}, '${location.risk_level}', ${location.heat_index})" style="background: var(--primary); color: white; border: none; border-radius: 10px; padding: 8px 16px; font-size: 13px; cursor: pointer; font-weight: 500;"><i class="bi bi-envelope"></i> Send Alert to Email</button></div>`;
     }
     
     function updateMap(data) {
         Object.values(locationMarkers).forEach(m => fullMap.removeLayer(m));
         locationMarkers = {};
-        
         data.forEach(location => {
             if (location.success) {
                 const marker = createCustomMarker(location);
@@ -707,12 +601,10 @@
         
         const renderList = (filteredData) => {
             listContainer.innerHTML = '';
-            
             if (filteredData.length === 0) {
                 listContainer.innerHTML = '<div class="no-alerts"><i class="bi bi-search"></i><p>No locations match</p></div>';
                 return;
             }
-            
             filteredData.forEach(location => {
                 const item = document.createElement('div');
                 item.className = 'location-item';
@@ -721,34 +613,13 @@
                     locationMarkers[location.name]?.openPopup();
                     showLocationDetails(location);
                 };
-                
-                item.innerHTML = `
-                    <div class="location-item-header">
-                        <span class="location-name">${location.name}</span>
-                        <span class="location-risk" style="background: ${location.risk_color}20; color: ${location.risk_color};">
-                            ${location.risk_level}
-                        </span>
-                    </div>
-                    <div class="location-details">
-                        <span><i class="bi bi-thermometer"></i> ${location.temperature}°C</span>
-                        <span><i class="bi bi-droplet"></i> ${location.humidity}%</span>
-                    </div>
-                `;
-                
+                item.innerHTML = `<div class="location-item-header"><span class="location-name">${location.name}</span><span class="location-risk" style="background: ${location.risk_color}20; color: ${location.risk_color};">${location.risk_level}</span></div><div class="location-details"><span><i class="bi bi-thermometer"></i> ${location.temperature}°C</span><span><i class="bi bi-droplet"></i> ${location.humidity}%</span></div>`;
                 listContainer.appendChild(item);
             });
         };
         
         renderList(data);
-        
-        searchInput.addEventListener('input', (e) => {
-            const searchTerm = e.target.value.toLowerCase();
-            const filtered = data.filter(l => 
-                l.name.toLowerCase().includes(searchTerm)
-            );
-            renderList(filtered);
-        });
-        
+        searchInput.addEventListener('input', (e) => { const filtered = data.filter(l => l.name.toLowerCase().includes(e.target.value.toLowerCase())); renderList(filtered); });
         document.getElementById('location-count').textContent = data.length;
     }
     
@@ -756,53 +627,14 @@
         const select = document.getElementById('location-filter');
         const currentValue = select.value;
         select.innerHTML = '<option value="all">All Locations</option>';
-        
-        data.sort((a, b) => a.name.localeCompare(b.name)).forEach(loc => {
-            const option = document.createElement('option');
-            option.value = loc.name;
-            option.textContent = loc.name;
-            select.appendChild(option);
-        });
-        
+        data.sort((a, b) => a.name.localeCompare(b.name)).forEach(loc => { const option = document.createElement('option'); option.value = loc.name; option.textContent = loc.name; select.appendChild(option); });
         select.value = currentValue;
     }
     
     function showLocationDetails(location) {
         const modal = new bootstrap.Modal(document.getElementById('locationModal'));
-        const header = document.getElementById('modal-header');
-        const body = document.getElementById('modal-body');
-        
-        header.style.background = `linear-gradient(135deg, ${location.risk_color}20, transparent)`;
-        
-        body.innerHTML = `
-            <div class="text-center mb-4">
-                <span class="risk-badge ${location.risk_level.toLowerCase()}" style="font-size: 14px;">
-                    ${location.risk_level} RISK
-                </span>
-                <h5 class="mt-3 mb-1">${location.name}</h5>
-                <p class="text-secondary">${location.risk_description}</p>
-            </div>
-            
-            <div class="detail-grid">
-                <div class="detail-item">
-                    <div class="detail-label">Temperature</div>
-                    <div class="detail-value">${location.temperature}°C</div>
-                </div>
-                <div class="detail-item">
-                    <div class="detail-label">Humidity</div>
-                    <div class="detail-value">${location.humidity}%</div>
-                </div>
-                <div class="detail-item">
-                    <div class="detail-label">Heat Index</div>
-                    <div class="detail-value">${location.heat_index}°C</div>
-                </div>
-                <div class="detail-item">
-                    <div class="detail-label">Coordinates</div>
-                    <div class="detail-value" style="font-size: 14px;">${location.lat.toFixed(4)}<br>${location.lon.toFixed(4)}</div>
-                </div>
-            </div>
-        `;
-        
+        document.getElementById('modal-header').style.background = `linear-gradient(135deg, ${location.risk_color}20, transparent)`;
+        document.getElementById('modal-body').innerHTML = `<div class="text-center mb-4"><span class="risk-badge ${location.risk_level.toLowerCase()}" style="font-size: 14px;">${location.risk_level} RISK</span><h5 class="mt-3 mb-1">${location.name}</h5><p class="text-secondary">${location.risk_description}</p></div><div class="detail-grid"><div class="detail-item"><div class="detail-label">Temperature</div><div class="detail-value">${location.temperature}°C</div></div><div class="detail-item"><div class="detail-label">Humidity</div><div class="detail-value">${location.humidity}%</div></div><div class="detail-item"><div class="detail-label">Heat Index</div><div class="detail-value">${location.heat_index}°C</div></div><div class="detail-item"><div class="detail-label">Coordinates</div><div class="detail-value" style="font-size: 14px;">${location.lat.toFixed(4)}<br>${location.lon.toFixed(4)}</div></div></div>`;
         modal.show();
     }
     
@@ -816,65 +648,24 @@
         document.getElementById('send-alert-status').style.display = 'none';
         document.getElementById('send-alert-btn').disabled = false;
         document.getElementById('send-alert-btn').innerHTML = '<i class="bi bi-send"></i> Send Alert Now';
-        
-        const modal = new bootstrap.Modal(document.getElementById('sendAlertModal'));
-        modal.show();
+        new bootstrap.Modal(document.getElementById('sendAlertModal')).show();
     }
     
     async function sendAlertEmail() {
         const email = document.getElementById('alert-recipient').value.trim();
-        const location = document.getElementById('alert-location').value;
-        const temperature = parseFloat(document.getElementById('alert-temp').value);
-        const humidity = parseFloat(document.getElementById('alert-humidity').value);
-        const riskLevel = document.getElementById('alert-risk').value;
-        const heatIndex = parseFloat(document.getElementById('alert-heat').value);
-        const statusDiv = document.getElementById('send-alert-status');
+        if (!email) { document.getElementById('send-alert-status').style.display = 'block'; document.getElementById('send-alert-status').innerHTML = '<div class="alert alert-danger py-2"><i class="bi bi-exclamation-circle"></i> Please enter an email address</div>'; return; }
         const sendBtn = document.getElementById('send-alert-btn');
-        
-        if (!email) {
-            statusDiv.style.display = 'block';
-            statusDiv.innerHTML = '<div class="alert alert-danger py-2"><i class="bi bi-exclamation-circle"></i> Please enter an email address</div>';
-            return;
-        }
-        
-        sendBtn.disabled = true;
-        sendBtn.innerHTML = '<span class="spinner-border spinner-border-sm"></span> Sending...';
-        statusDiv.style.display = 'block';
-        statusDiv.innerHTML = '<div class="text-muted"><span class="spinner-border spinner-border-sm"></span> Sending alert...</div>';
-        
+        sendBtn.disabled = true; sendBtn.innerHTML = '<span class="spinner-border spinner-border-sm"></span> Sending...';
         try {
-            const response = await fetch('/api/send-alert', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    email: email,
-                    location: location,
-                    temperature: temperature,
-                    humidity: humidity,
-                    risk_level: riskLevel,
-                    heat_index: heatIndex
-                })
-            });
-            
+            const response = await fetch('/api/send-alert', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ email: email, location: document.getElementById('alert-location').value, temperature: parseFloat(document.getElementById('alert-temp').value), humidity: parseFloat(document.getElementById('alert-humidity').value), risk_level: document.getElementById('alert-risk').value, heat_index: parseFloat(document.getElementById('alert-heat').value) }) });
             const result = await response.json();
-            
-            if (result.success) {
-                statusDiv.innerHTML = '<div class="alert alert-success py-2"><i class="bi bi-check-circle"></i> Alert sent successfully to ' + email + '</div>';
-                document.getElementById('alert-recipient').value = '';
-            } else {
-                statusDiv.innerHTML = '<div class="alert alert-danger py-2"><i class="bi bi-exclamation-circle"></i> ' + result.message + '</div>';
-            }
-        } catch (error) {
-            statusDiv.innerHTML = '<div class="alert alert-danger py-2"><i class="bi bi-exclamation-circle"></i> Failed to send alert</div>';
-        }
-        
-        sendBtn.disabled = false;
-        sendBtn.innerHTML = '<i class="bi bi-send"></i> Send Alert Now';
+            document.getElementById('send-alert-status').style.display = 'block';
+            document.getElementById('send-alert-status').innerHTML = result.success ? `<div class="alert alert-success py-2"><i class="bi bi-check-circle"></i> Alert sent to ${email}. Check spam folder if not received.</div>` : `<div class="alert alert-danger py-2"><i class="bi bi-exclamation-circle"></i> ${result.message}</div>`;
+        } catch (error) { document.getElementById('send-alert-status').innerHTML = '<div class="alert alert-danger py-2">Failed to send alert</div>'; }
+        sendBtn.disabled = false; sendBtn.innerHTML = '<i class="bi bi-send"></i> Send Alert Now';
     }
     
-    function refreshMapData() {
-        loadMapData();
-    }
+    function refreshMapData() { loadMapData(); }
     
     loadMapData();
     setInterval(loadMapData, 300000);
