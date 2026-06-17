@@ -109,9 +109,34 @@ def get_current_weather():
             )
             db.session.add(reading)
             
-            # Also save to Supabase
+            # Log alert if HIGH or DANGEROUS risk (without sending email)
+            if risk_level in ['HIGH', 'DANGEROUS']:
+                alert_log = AlertLog(
+                    location_name=data['name'],
+                    risk_level=risk_level,
+                    temperature=data['temperature'],
+                    humidity=data['humidity'],
+                    message=risk_info['description'],
+                    email_sent=False
+                )
+                db.session.add(alert_log)
+                
+                # Also save alert to Supabase
+                try:
+                    supabase_service = SupabaseService()
+                    supabase_service.save_alert_log(
+                        location_name=data['name'],
+                        risk_level=risk_level,
+                        temperature=data['temperature'],
+                        humidity=data['humidity'],
+                        message=risk_info['description'],
+                        email_sent=False
+                    )
+                except Exception as e:
+                    print(f"Supabase alert save error: {e}")
+            
+            # Also save weather to Supabase
             try:
-                supabase_service = SupabaseService()
                 supabase_service.save_weather_reading(
                     location_name=data['name'],
                     latitude=data['lat'],
