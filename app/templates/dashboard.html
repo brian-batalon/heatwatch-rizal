@@ -118,12 +118,13 @@
                         <th>Humidity</th>
                         <th>Heat Index</th>
                         <th>Risk Level</th>
+                        <th>Predicted (6h)</th>
                         <th>Status</th>
                     </tr>
                 </thead>
                 <tbody id="weather-table-body">
                     <tr>
-                        <td colspan="6" class="loading-cell">
+                        <td colspan="7" class="loading-cell">
                             <div class="loading-spinner">
                                 <i class="bi bi-arrow-repeat"></i> Loading data...
                             </div>
@@ -172,6 +173,7 @@
     @keyframes skeleton-pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
     .status-badge { display: inline-flex; align-items: center; gap: 4px; padding: 4px 8px; background: rgba(16, 185, 129, 0.1); color: var(--risk-low); border-radius: 20px; font-size: 12px; font-weight: 500; }
     .status-badge.error { background: rgba(239, 68, 68, 0.1); color: var(--risk-extreme); }
+    .prediction-cell { font-size: 13px; color: var(--primary); font-weight: 500; }
     .no-alerts { text-align: center; padding: 40px 20px; color: var(--text-muted); }
     .no-alerts i { font-size: 40px; color: var(--risk-low); }
     .no-alerts p { margin-top: 12px; font-size: 14px; }
@@ -182,12 +184,12 @@
         .stat-value { font-size: 24px; } .stat-label { font-size: 12px; } #dashboard-map { height: 220px; }
         .card-header-modern { padding: 14px 16px; } .card-title { font-size: 14px; } .card-link { font-size: 12px; }
         .table-wrapper { overflow-x: auto; -webkit-overflow-scrolling: touch; }
-        .modern-table { min-width: 500px; } .modern-table th, .modern-table td { padding: 10px 12px; font-size: 12px; }
+        .modern-table { min-width: 600px; } .modern-table th, .modern-table td { padding: 10px 12px; font-size: 12px; }
         .alerts-feed { max-height: 250px; } .map-header-actions { gap: 8px; }
     }
     @media (max-width: 480px) {
         .stats-grid { grid-template-columns: 1fr; } .map-preview-container { padding: 8px; }
-        #dashboard-map { height: 180px; } .modern-table { min-width: 450px; }
+        #dashboard-map { height: 180px; } .modern-table { min-width: 550px; }
         .modern-table th, .modern-table td { padding: 8px 10px; font-size: 11px; }
     }
 </style>
@@ -246,7 +248,8 @@
             row.insertCell(2).textContent = item.humidity ? `${item.humidity}%` : 'N/A';
             row.insertCell(3).textContent = item.heat_index ? `${item.heat_index}°C` : 'N/A';
             row.insertCell(4).innerHTML = `<span class="risk-badge ${item.risk_level.toLowerCase()}">${item.risk_level}</span>`;
-            row.insertCell(5).innerHTML = item.success ? '<span class="status-badge"><i class="bi bi-check-circle-fill"></i> Active</span>' : '<span class="status-badge error"><i class="bi bi-exclamation-circle-fill"></i> Error</span>';
+            row.insertCell(5).innerHTML = item.predicted_temp ? `<span class="prediction-cell">🤖 ${item.predicted_temp}°C</span>` : '<span class="text-muted">—</span>';
+            row.insertCell(6).innerHTML = item.success ? '<span class="status-badge"><i class="bi bi-check-circle-fill"></i> Active</span>' : '<span class="status-badge error"><i class="bi bi-exclamation-circle-fill"></i> Error</span>';
         });
     }
     
@@ -255,7 +258,8 @@
         data.forEach(item => {
             if (item.success) {
                 const marker = L.circleMarker([item.lat, item.lon], { radius: 8, fillColor: item.risk_color, color: '#fff', weight: 2, opacity: 1, fillOpacity: 0.9 }).addTo(dashboardMap);
-                marker.bindPopup(`<strong>${item.name}</strong><br>🌡️ ${item.temperature}°C<br>💧 ${item.humidity}%<br><span style="color:${item.risk_color};">⚠️ ${item.risk_level}</span>`);
+                const predInfo = item.predicted_temp ? `<br>🤖 Predicted (6h): ${item.predicted_temp}°C` : '';
+                marker.bindPopup(`<strong>${item.name}</strong><br>🌡️ ${item.temperature}°C<br>💧 ${item.humidity}%<br><span style="color:${item.risk_color};">⚠️ ${item.risk_level}</span>${predInfo}`);
                 markers[item.name] = marker;
             }
         });
