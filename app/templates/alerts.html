@@ -60,22 +60,15 @@
         <div class="email-panel-body">
             <div class="email-row">
                 <div class="email-input-wrap">
-                    <label class="form-label fw-semibold">
-                        <i class="bi bi-envelope-at"></i> Recipient Email
-                    </label>
+                    <label class="form-label fw-semibold"><i class="bi bi-envelope-at"></i> Recipient Email</label>
                     <input type="email" class="form-control" id="bulk-email" placeholder="Enter email address..." style="border-radius: 10px;">
                 </div>
                 <div class="email-btn-wrap">
-                    <button class="btn-modern" onclick="sendBulkAlert()" id="bulk-send-btn" style="width: 100%;">
-                        <i class="bi bi-send"></i> Send Alert
-                    </button>
+                    <button class="btn-modern" onclick="sendBulkAlert()" id="bulk-send-btn" style="width: 100%;"><i class="bi bi-send"></i> Send Alert</button>
                 </div>
             </div>
-            
             <div class="mt-3">
-                <label class="form-label fw-semibold">
-                    <i class="bi bi-clock"></i> Send Mode
-                </label>
+                <label class="form-label fw-semibold"><i class="bi bi-clock"></i> Send Mode</label>
                 <div class="send-mode-row">
                     <div class="form-check form-check-inline">
                         <input class="form-check-input" type="radio" name="sendMode" id="mode-manual" value="manual" checked onchange="toggleScheduleMode()">
@@ -87,26 +80,15 @@
                     </div>
                     <div class="schedule-options" id="schedule-options" style="display: none;">
                         <select class="filter-select" id="schedule-interval" style="min-width: auto; width: auto;">
-                            <option value="1">Every 1 Hour</option>
-                            <option value="3">Every 3 Hours</option>
-                            <option value="6">Every 6 Hours</option>
-                            <option value="12">Every 12 Hours</option>
-                            <option value="24">Every 24 Hours</option>
+                            <option value="1">Every 1 Hour</option><option value="3">Every 3 Hours</option><option value="6">Every 6 Hours</option><option value="12">Every 12 Hours</option><option value="24">Every 24 Hours</option>
                         </select>
                     </div>
                 </div>
             </div>
-            
             <div class="mt-3">
-                <label class="form-label fw-semibold">
-                    <i class="bi bi-geo-alt"></i> Select Locations
-                    <span class="text-muted ms-2">(<a href="#" onclick="selectAllLocations()">Select All</a> | <a href="#" onclick="deselectAllLocations()">Clear</a>)</span>
-                </label>
-                <div class="location-checkboxes" id="location-checkboxes">
-                    <div class="text-muted">Loading locations...</div>
-                </div>
+                <label class="form-label fw-semibold"><i class="bi bi-geo-alt"></i> Select Locations <span class="text-muted ms-2">(<a href="#" onclick="selectAllLocations()">Select All</a> | <a href="#" onclick="deselectAllLocations()">Clear</a>)</span></label>
+                <div class="location-checkboxes" id="location-checkboxes"><div class="text-muted">Loading locations...</div></div>
             </div>
-            
             <div id="bulk-send-status" class="mt-3" style="display: none;"></div>
         </div>
     </div>
@@ -114,27 +96,13 @@
     <!-- Filters Bar -->
     <div class="filters-bar">
         <div class="filter-group">
-            <select class="filter-select" id="location-filter">
-                <option value="all">All Locations</option>
-            </select>
-            
-            <select class="filter-select" id="risk-filter">
-                <option value="all">All Risk Levels</option>
-                <option value="HIGH">High Risk</option>
-                <option value="DANGEROUS">Dangerous Risk</option>
-            </select>
+            <select class="filter-select" id="location-filter"><option value="all">All Locations</option></select>
+            <select class="filter-select" id="risk-filter"><option value="all">All Risk Levels</option><option value="HIGH">High Risk</option><option value="DANGEROUS">Dangerous Risk</option></select>
         </div>
-        
         <div class="filter-actions">
-            <button class="btn-modern" onclick="applyFilters()">
-                <i class="bi bi-funnel"></i> Apply Filters
-            </button>
-            <button class="btn-modern-outline" onclick="resetFilters()">
-                <i class="bi bi-arrow-counterclockwise"></i> Reset
-            </button>
-            <button class="btn-modern-outline" onclick="exportAlerts()">
-                <i class="bi bi-download"></i> Export CSV
-            </button>
+            <button class="btn-modern" onclick="applyFilters()"><i class="bi bi-funnel"></i> Apply Filters</button>
+            <button class="btn-modern-outline" onclick="resetFilters()"><i class="bi bi-arrow-counterclockwise"></i> Reset</button>
+            <button class="btn-modern-outline" onclick="exportAlerts()"><i class="bi bi-download"></i> Export CSV</button>
         </div>
     </div>
     
@@ -144,36 +112,17 @@
             <table class="modern-table">
                 <thead>
                     <tr>
-                        <th>Time</th>
-                        <th>Location</th>
-                        <th>Risk Level</th>
-                        <th>Temperature</th>
-                        <th>Humidity</th>
-                        <th>Heat Index</th>
-                        <th>Status</th>
+                        <th>Time</th><th>Location</th><th>Risk Level</th><th>Temperature</th><th>Humidity</th><th>Heat Index</th>
                     </tr>
                 </thead>
                 <tbody id="alerts-table-body">
-                    <tr>
-                        <td colspan="7" class="loading-cell">
-                            <div class="loading-spinner">
-                                <i class="bi bi-arrow-repeat"></i> Loading alert history...
-                            </div>
-                        </td>
-                    </tr>
+                    <tr><td colspan="6" class="loading-cell"><div class="loading-spinner"><i class="bi bi-arrow-repeat"></i> Loading alert history...</div></td></tr>
                 </tbody>
             </table>
         </div>
-        
-        <!-- Pagination -->
         <div class="pagination-wrapper">
-            <div class="pagination-info" id="pagination-info">
-                Showing <span id="showing-start">0</span>-<span id="showing-end">0</span> of <span id="total-items">0</span>
-            </div>
-            <nav>
-                <ul class="modern-pagination" id="pagination">
-                </ul>
-            </nav>
+            <div class="pagination-info" id="pagination-info">Showing <span id="showing-start">0</span>-<span id="showing-end">0</span> of <span id="total-items">0</span></div>
+            <nav><ul class="modern-pagination" id="pagination"></ul></nav>
         </div>
     </div>
 </div>
@@ -183,509 +132,136 @@
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content modern-modal">
             <div class="modal-header" id="alert-modal-header">
-                <h5 class="modal-title">
-                    <i class="bi bi-bell-fill"></i>
-                    <span>Alert Details</span>
-                </h5>
+                <h5 class="modal-title"><i class="bi bi-bell-fill"></i><span>Alert Details</span></h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
-            <div class="modal-body" id="alert-modal-body">
-                <div class="loading-spinner">Loading...</div>
-            </div>
+            <div class="modal-body" id="alert-modal-body"><div class="loading-spinner">Loading...</div></div>
         </div>
     </div>
 </div>
 
 <style>
-    .alerts-container {
-        display: flex;
-        flex-direction: column;
-        gap: 24px;
-    }
-    
-    .alert-stats-grid {
-        display: grid;
-        grid-template-columns: repeat(4, 1fr);
-        gap: 20px;
-    }
-    
-    .alert-stat-card {
-        background: var(--bg-secondary);
-        border: 1px solid var(--border-color);
-        border-radius: 20px;
-        padding: 20px;
-        display: flex;
-        align-items: center;
-        gap: 16px;
-        transition: all 0.2s ease;
-    }
-    
-    .alert-stat-card:hover {
-        box-shadow: var(--shadow-md);
-    }
-    
-    .stat-icon-wrapper {
-        width: 48px;
-        height: 48px;
-        border-radius: 14px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        color: white;
-        font-size: 20px;
-    }
-    
-    .stat-info {
-        flex: 1;
-    }
-    
-    .stat-number {
-        font-size: 28px;
-        font-weight: 700;
-        color: var(--text-primary);
-        line-height: 1.2;
-    }
-    
-    .stat-text {
-        font-size: 13px;
-        color: var(--text-secondary);
-    }
+    .alerts-container { display: flex; flex-direction: column; gap: 24px; }
+    .alert-stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; }
+    .alert-stat-card { background: var(--bg-secondary); border: 1px solid var(--border-color); border-radius: 20px; padding: 20px; display: flex; align-items: center; gap: 16px; transition: all 0.2s ease; }
+    .alert-stat-card:hover { box-shadow: var(--shadow-md); }
+    .stat-icon-wrapper { width: 48px; height: 48px; border-radius: 14px; display: flex; align-items: center; justify-content: center; color: white; font-size: 20px; }
+    .stat-info { flex: 1; }
+    .stat-number { font-size: 28px; font-weight: 700; color: var(--text-primary); line-height: 1.2; }
+    .stat-text { font-size: 13px; color: var(--text-secondary); }
+    .modern-card { background: var(--bg-secondary); border: 1px solid var(--border-color); border-radius: 20px; overflow: hidden; }
+    .card-header-modern { display: flex; align-items: center; justify-content: space-between; padding: 18px 24px; border-bottom: 1px solid var(--border-color); }
+    .card-title { display: flex; align-items: center; gap: 10px; font-weight: 600; color: var(--text-primary); }
+    .card-title i { color: var(--primary); font-size: 18px; }
+    .email-panel-body { padding: 24px; }
+    .email-row { display: flex; gap: 16px; align-items: flex-end; }
+    .email-input-wrap { flex: 1; }
+    .email-btn-wrap { flex-shrink: 0; min-width: 140px; padding-top: 28px; }
+    .send-mode-row { display: flex; align-items: center; gap: 16px; flex-wrap: wrap; }
+    .schedule-options { display: inline-flex; align-items: center; }
+    .location-checkboxes { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; max-height: 200px; overflow-y: auto; padding: 12px; background: var(--bg-primary); border-radius: 12px; }
+    .location-checkbox-item { display: flex; align-items: center; gap: 8px; padding: 8px 12px; background: var(--bg-secondary); border: 1px solid var(--border-color); border-radius: 8px; cursor: pointer; font-size: 13px; transition: all 0.15s ease; }
+    .location-checkbox-item:hover { border-color: var(--primary); }
+    .location-checkbox-item.selected { background: rgba(37, 99, 235, 0.1); border-color: var(--primary); }
+    .location-checkbox-item input[type="checkbox"] { accent-color: var(--primary); }
+    .filters-bar { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 16px; }
+    .filter-actions { display: flex; gap: 12px; }
+    .alert-row { cursor: pointer; transition: background 0.15s ease; }
+    .alert-row:hover { background: var(--bg-primary) !important; }
+    .risk-indicator-cell { display: flex; align-items: center; gap: 8px; }
+    .risk-dot-large { width: 10px; height: 10px; border-radius: 50%; }
+    .pagination-wrapper { display: flex; align-items: center; justify-content: space-between; padding: 16px 24px; border-top: 1px solid var(--border-color); }
+    .pagination-info { font-size: 14px; color: var(--text-secondary); }
+    .modern-pagination { display: flex; gap: 6px; margin: 0; padding: 0; list-style: none; }
+    .modern-pagination .page-item { margin: 0; }
+    .modern-pagination .page-link { display: flex; align-items: center; justify-content: center; min-width: 36px; height: 36px; padding: 0 12px; background: var(--bg-primary); border: 1px solid var(--border-color); border-radius: 10px; color: var(--text-primary); font-weight: 500; text-decoration: none; transition: all 0.2s ease; cursor: pointer; }
+    .modern-pagination .page-link:hover { background: var(--bg-secondary); border-color: var(--primary); color: var(--primary); }
+    .modern-pagination .active .page-link { background: var(--primary); border-color: var(--primary); color: white; }
+    .modern-pagination .disabled .page-link { opacity: 0.5; cursor: not-allowed; pointer-events: none; }
+    .alert-detail-card { background: var(--bg-primary); border-radius: 16px; padding: 16px; margin-bottom: 16px; }
+    .alert-detail-header { display: flex; align-items: center; gap: 12px; margin-bottom: 16px; }
+    .alert-detail-icon { width: 48px; height: 48px; border-radius: 14px; display: flex; align-items: center; justify-content: center; color: white; font-size: 22px; }
+    .alert-detail-title h5 { margin: 0 0 4px 0; font-weight: 700; }
+    .alert-detail-title span { font-size: 13px; color: var(--text-secondary); }
+    .detail-row { display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid var(--border-color); }
+    .detail-row:last-child { border-bottom: none; }
+    .detail-label { color: var(--text-secondary); font-size: 13px; }
+    .detail-value { font-weight: 600; }
 
-    .modern-card {
-        background: var(--bg-secondary);
-        border: 1px solid var(--border-color);
-        border-radius: 20px;
-        overflow: hidden;
-    }
-    
-    .card-header-modern {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        padding: 18px 24px;
-        border-bottom: 1px solid var(--border-color);
-    }
-    
-    .card-title {
-        display: flex;
-        align-items: center;
-        gap: 10px;
-        font-weight: 600;
-        color: var(--text-primary);
-    }
-    
-    .card-title i {
-        color: var(--primary);
-        font-size: 18px;
-    }
-    
-    .email-panel-body {
-        padding: 24px;
-    }
-    
-    .email-row {
-        display: flex;
-        gap: 16px;
-        align-items: flex-end;
-    }
-    
-    .email-input-wrap {
-        flex: 1;
-    }
-    
-    .email-btn-wrap {
-        flex-shrink: 0;
-        min-width: 140px;
-        padding-top: 28px;
-    }
-    
-    .send-mode-row {
-        display: flex;
-        align-items: center;
-        gap: 16px;
-        flex-wrap: wrap;
-    }
-    
-    .schedule-options {
-        display: inline-flex;
-        align-items: center;
-    }
-    
-    .location-checkboxes {
-        display: grid;
-        grid-template-columns: repeat(3, 1fr);
-        gap: 8px;
-        max-height: 200px;
-        overflow-y: auto;
-        padding: 12px;
-        background: var(--bg-primary);
-        border-radius: 12px;
-    }
-    
-    .location-checkbox-item {
-        display: flex;
-        align-items: center;
-        gap: 8px;
-        padding: 8px 12px;
-        background: var(--bg-secondary);
-        border: 1px solid var(--border-color);
-        border-radius: 8px;
-        cursor: pointer;
-        font-size: 13px;
-        transition: all 0.15s ease;
-    }
-    
-    .location-checkbox-item:hover {
-        border-color: var(--primary);
-    }
-    
-    .location-checkbox-item.selected {
-        background: rgba(37, 99, 235, 0.1);
-        border-color: var(--primary);
-    }
-    
-    .location-checkbox-item input[type="checkbox"] {
-        accent-color: var(--primary);
-    }
-    
-    .filters-bar {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        flex-wrap: wrap;
-        gap: 16px;
-    }
-    
-    .filter-actions {
-        display: flex;
-        gap: 12px;
-    }
-    
-    .alert-row {
-        cursor: pointer;
-        transition: background 0.15s ease;
-    }
-    
-    .alert-row:hover {
-        background: var(--bg-primary) !important;
-    }
-    
-    .risk-indicator-cell {
-        display: flex;
-        align-items: center;
-        gap: 8px;
-    }
-    
-    .risk-dot-large {
-        width: 10px;
-        height: 10px;
-        border-radius: 50%;
-    }
-    
-    .email-status {
-        display: inline-flex;
-        align-items: center;
-        gap: 4px;
-        padding: 4px 8px;
-        border-radius: 20px;
-        font-size: 12px;
-        font-weight: 500;
-    }
-    
-    .email-status.sent {
-        background: rgba(16, 185, 129, 0.1);
-        color: var(--risk-low);
-    }
-    
-    .email-status.failed {
-        background: rgba(239, 68, 68, 0.1);
-        color: var(--risk-extreme);
-    }
-    
-    .pagination-wrapper {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        padding: 16px 24px;
-        border-top: 1px solid var(--border-color);
-    }
-    
-    .pagination-info {
-        font-size: 14px;
-        color: var(--text-secondary);
-    }
-    
-    .modern-pagination {
-        display: flex;
-        gap: 6px;
-        margin: 0;
-        padding: 0;
-        list-style: none;
-    }
-    
-    .modern-pagination .page-item {
-        margin: 0;
-    }
-    
-    .modern-pagination .page-link {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        min-width: 36px;
-        height: 36px;
-        padding: 0 12px;
-        background: var(--bg-primary);
-        border: 1px solid var(--border-color);
-        border-radius: 10px;
-        color: var(--text-primary);
-        font-weight: 500;
-        text-decoration: none;
-        transition: all 0.2s ease;
-        cursor: pointer;
-    }
-    
-    .modern-pagination .page-link:hover {
-        background: var(--bg-secondary);
-        border-color: var(--primary);
-        color: var(--primary);
-    }
-    
-    .modern-pagination .active .page-link {
-        background: var(--primary);
-        border-color: var(--primary);
-        color: white;
-    }
-    
-    .modern-pagination .disabled .page-link {
-        opacity: 0.5;
-        cursor: not-allowed;
-        pointer-events: none;
-    }
-    
-    .alert-detail-card {
-        background: var(--bg-primary);
-        border-radius: 16px;
-        padding: 16px;
-        margin-bottom: 16px;
-    }
-    
-    .alert-detail-header {
-        display: flex;
-        align-items: center;
-        gap: 12px;
-        margin-bottom: 16px;
-    }
-    
-    .alert-detail-icon {
-        width: 48px;
-        height: 48px;
-        border-radius: 14px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        color: white;
-        font-size: 22px;
-    }
-    
-    .alert-detail-title h5 {
-        margin: 0 0 4px 0;
-        font-weight: 700;
-    }
-    
-    .alert-detail-title span {
-        font-size: 13px;
-        color: var(--text-secondary);
-    }
-    
-    .detail-row {
-        display: flex;
-        justify-content: space-between;
-        padding: 10px 0;
-        border-bottom: 1px solid var(--border-color);
-    }
-    
-    .detail-row:last-child {
-        border-bottom: none;
-    }
-    
-    .detail-label {
-        color: var(--text-secondary);
-        font-size: 13px;
-    }
-    
-    .detail-value {
-        font-weight: 600;
-    }
-
-    @media (max-width: 1200px) {
-        .alert-stats-grid { grid-template-columns: repeat(2, 1fr); }
-        .location-checkboxes { grid-template-columns: repeat(2, 1fr); }
-    }
-    
+    @media (max-width: 1200px) { .alert-stats-grid { grid-template-columns: repeat(2, 1fr); } .location-checkboxes { grid-template-columns: repeat(2, 1fr); } }
     @media (max-width: 768px) {
-        .alert-stats-grid { grid-template-columns: repeat(2, 1fr); }
-        .email-row { flex-direction: column; gap: 12px; }
-        .email-input-wrap { width: 100%; }
-        .email-btn-wrap { width: 100%; min-width: auto; padding-top: 0; }
+        .alert-stats-grid { grid-template-columns: repeat(2, 1fr); } .email-row { flex-direction: column; gap: 12px; }
+        .email-input-wrap { width: 100%; } .email-btn-wrap { width: 100%; min-width: auto; padding-top: 0; }
         .send-mode-row { flex-direction: column; align-items: flex-start; gap: 8px; }
-        .filters-bar { flex-direction: column; align-items: stretch; }
-        .filter-actions { flex-wrap: wrap; }
+        .filters-bar { flex-direction: column; align-items: stretch; } .filter-actions { flex-wrap: wrap; }
         .filter-actions button { flex: 1; font-size: 12px; padding: 8px 12px; }
-        .pagination-wrapper { flex-direction: column; gap: 16px; }
-        .location-checkboxes { grid-template-columns: repeat(2, 1fr); }
+        .pagination-wrapper { flex-direction: column; gap: 16px; } .location-checkboxes { grid-template-columns: repeat(2, 1fr); }
         .table-wrapper { overflow-x: auto; -webkit-overflow-scrolling: touch; }
-        .modern-table { min-width: 600px; }
-        .modern-table th, .modern-table td { padding: 10px 12px; font-size: 12px; white-space: nowrap; }
+        .modern-table { min-width: 500px; } .modern-table th, .modern-table td { padding: 10px 12px; font-size: 12px; white-space: nowrap; }
     }
-    
     @media (max-width: 480px) {
-        .alert-stats-grid { grid-template-columns: 1fr; gap: 10px; }
-        .location-checkboxes { grid-template-columns: 1fr; }
-        .alert-stat-card { padding: 14px; }
-        .stat-icon-wrapper { width: 40px; height: 40px; font-size: 18px; }
-        .stat-number { font-size: 22px; }
-        .email-panel-body { padding: 16px; }
-        .card-header-modern { padding: 14px 16px; }
-        .pagination-info { font-size: 12px; }
+        .alert-stats-grid { grid-template-columns: 1fr; gap: 10px; } .location-checkboxes { grid-template-columns: 1fr; }
+        .alert-stat-card { padding: 14px; } .stat-icon-wrapper { width: 40px; height: 40px; font-size: 18px; }
+        .stat-number { font-size: 22px; } .email-panel-body { padding: 16px; }
+        .card-header-modern { padding: 14px 16px; } .pagination-info { font-size: 12px; }
     }
 </style>
 {% endblock %}
 
 {% block extra_js %}
 <script>
-    let allAlerts = [];
-    let filteredAlerts = [];
-    let currentPage = 1;
+    let allAlerts = [], filteredAlerts = [], currentPage = 1, currentWeatherData = [], scheduledJobs = {};
     const itemsPerPage = 10;
-    let currentWeatherData = [];
-    let scheduledJobs = {};
     
     function toggleScheduleMode() {
         const isScheduled = document.getElementById('mode-scheduled').checked;
-        const scheduleOptions = document.getElementById('schedule-options');
-        const sendBtn = document.getElementById('bulk-send-btn');
-        
-        if (isScheduled) {
-            scheduleOptions.style.display = 'inline-flex';
-            sendBtn.innerHTML = '<i class="bi bi-clock"></i> Start Auto-Send';
-        } else {
-            scheduleOptions.style.display = 'none';
-            sendBtn.innerHTML = '<i class="bi bi-send"></i> Send Alert';
-        }
+        document.getElementById('schedule-options').style.display = isScheduled ? 'inline-flex' : 'none';
+        document.getElementById('bulk-send-btn').innerHTML = isScheduled ? '<i class="bi bi-clock"></i> Start Auto-Send' : '<i class="bi bi-send"></i> Send Alert';
     }
     
     async function loadAlerts() {
         try {
-            const response = await fetch('/api/alert-history?limit=200');
-            const data = await response.json();
-            allAlerts = data;
-            filteredAlerts = [...allAlerts];
-            
-            updateStats();
-            populateLocationFilter();
-            displayAlerts();
-            loadLocationCheckboxes();
-        } catch (error) {
-            console.error('Error loading alerts:', error);
-        }
+            const r = await fetch('/api/alert-history?limit=200');
+            allAlerts = await r.json(); filteredAlerts = [...allAlerts];
+            updateStats(); populateLocationFilter(); displayAlerts(); loadLocationCheckboxes();
+        } catch(e) { console.error('Error loading alerts:', e); }
     }
     
     function updateStats() {
-        const total = allAlerts.length;
-        const high = allAlerts.filter(a => a.risk_level === 'HIGH').length;
-        const dangerous = allAlerts.filter(a => a.risk_level === 'DANGEROUS').length;
-        const emailsSent = allAlerts.filter(a => a.email_sent).length;
-        
-        document.getElementById('total-alerts').textContent = total;
-        document.getElementById('high-alerts').textContent = high;
-        document.getElementById('dangerous-alerts').textContent = dangerous;
-        document.getElementById('emails-sent').textContent = emailsSent;
+        document.getElementById('total-alerts').textContent = allAlerts.length;
+        document.getElementById('high-alerts').textContent = allAlerts.filter(a => a.risk_level === 'HIGH').length;
+        document.getElementById('dangerous-alerts').textContent = allAlerts.filter(a => a.risk_level === 'DANGEROUS').length;
+        document.getElementById('emails-sent').textContent = allAlerts.filter(a => a.email_sent).length;
     }
     
     function populateLocationFilter() {
-        const locations = [...new Set(allAlerts.map(a => a.location_name))];
         const select = document.getElementById('location-filter');
-        
         select.innerHTML = '<option value="all">All Locations</option>';
-        locations.sort().forEach(loc => {
-            const option = document.createElement('option');
-            option.value = loc;
-            option.textContent = loc;
-            select.appendChild(option);
+        [...new Set(allAlerts.map(a => a.location_name))].sort().forEach(loc => {
+            const o = document.createElement('option'); o.value = loc; o.textContent = loc; select.appendChild(o);
         });
     }
     
     async function loadLocationCheckboxes() {
         try {
-            const response = await fetch('/api/current-weather');
-            const data = await response.json();
-            currentWeatherData = data;
-            
-            const container = document.getElementById('location-checkboxes');
-            container.innerHTML = '';
-            
+            const r = await fetch('/api/current-weather'); const data = await r.json(); currentWeatherData = data;
+            const container = document.getElementById('location-checkboxes'); container.innerHTML = '';
             data.forEach(item => {
                 if (item.success) {
-                    const div = document.createElement('div');
-                    div.className = 'location-checkbox-item';
-                    div.onclick = function(e) {
-                        if (e.target.type !== 'checkbox') {
-                            const cb = this.querySelector('input[type="checkbox"]');
-                            cb.checked = !cb.checked;
-                            this.classList.toggle('selected', cb.checked);
-                        }
-                    };
-                    
-                    div.innerHTML = `
-                        <input type="checkbox" value="${item.name}" 
-                               data-temp="${item.temperature}" 
-                               data-humidity="${item.humidity}"
-                               data-heat="${item.heat_index}"
-                               data-risk="${item.risk_level}"
-                               data-predicted-temp="${item.predicted_temp || ''}"
-                               data-predicted-risk="${item.predicted_risk || ''}"
-                               onchange="this.parentElement.classList.toggle('selected', this.checked)">
-                        <span>${item.name}</span>
-                        <small class="text-muted ms-auto">${item.temperature}°C</small>
-                    `;
-                    
+                    const div = document.createElement('div'); div.className = 'location-checkbox-item';
+                    div.onclick = function(e) { if (e.target.type !== 'checkbox') { const cb = this.querySelector('input[type="checkbox"]'); cb.checked = !cb.checked; this.classList.toggle('selected', cb.checked); } };
+                    div.innerHTML = `<input type="checkbox" value="${item.name}" data-temp="${item.temperature}" data-humidity="${item.humidity}" data-heat="${item.heat_index}" data-risk="${item.risk_level}" data-predicted-temp="${item.predicted_temp||''}" data-predicted-risk="${item.predicted_risk||''}" onchange="this.parentElement.classList.toggle('selected',this.checked)"><span>${item.name}</span><small class="text-muted ms-auto">${item.temperature}°C</small>`;
                     container.appendChild(div);
                 }
             });
-        } catch (error) {
-            console.error('Error loading locations:', error);
-        }
+        } catch(e) { console.error('Error loading locations:', e); }
     }
     
-    function selectAllLocations() {
-        document.querySelectorAll('#location-checkboxes input[type="checkbox"]').forEach(cb => {
-            cb.checked = true;
-            cb.parentElement.classList.add('selected');
-        });
-    }
+    function selectAllLocations() { document.querySelectorAll('#location-checkboxes input[type="checkbox"]').forEach(cb => { cb.checked = true; cb.parentElement.classList.add('selected'); }); }
+    function deselectAllLocations() { document.querySelectorAll('#location-checkboxes input[type="checkbox"]').forEach(cb => { cb.checked = false; cb.parentElement.classList.remove('selected'); }); }
     
-    function deselectAllLocations() {
-        document.querySelectorAll('#location-checkboxes input[type="checkbox"]').forEach(cb => {
-            cb.checked = false;
-            cb.parentElement.classList.remove('selected');
-        });
-    }
-    
-    function sendEmailToLocation(email, locationName, temp, humidity, risk, heat, predictedTemp, predictedRisk) {
-        return fetch('/api/send-alert', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                email: email,
-                location: locationName,
-                temperature: temp,
-                humidity: humidity,
-                risk_level: risk,
-                heat_index: heat,
-                predicted_temp: predictedTemp || null,
-                predicted_risk: predictedRisk || null
-            })
-        }).then(r => r.json());
+    function sendEmailToLocation(email, loc, t, h, risk, heat, pt, pr) {
+        return fetch('/api/send-alert', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({ email, location:loc, temperature:t, humidity:h, risk_level:risk, heat_index:heat, predicted_temp:pt||null, predicted_risk:pr||null }) }).then(r => r.json());
     }
     
     async function sendBulkAlert() {
@@ -694,185 +270,94 @@
         const sendBtn = document.getElementById('bulk-send-btn');
         const isScheduled = document.getElementById('mode-scheduled').checked;
         const interval = parseInt(document.getElementById('schedule-interval').value);
-        
-        if (!email) {
-            statusDiv.style.display = 'block';
-            statusDiv.innerHTML = '<div class="alert alert-danger py-2"><i class="bi bi-exclamation-circle"></i> Please enter an email address</div>';
-            return;
-        }
-        
+        if (!email) { statusDiv.style.display='block'; statusDiv.innerHTML='<div class="alert alert-danger py-2"><i class="bi bi-exclamation-circle"></i> Please enter an email address</div>'; return; }
         const selected = document.querySelectorAll('#location-checkboxes input[type="checkbox"]:checked');
-        
-        if (selected.length === 0) {
-            statusDiv.style.display = 'block';
-            statusDiv.innerHTML = '<div class="alert alert-danger py-2"><i class="bi bi-exclamation-circle"></i> Please select at least one location</div>';
-            return;
-        }
+        if (selected.length === 0) { statusDiv.style.display='block'; statusDiv.innerHTML='<div class="alert alert-danger py-2"><i class="bi bi-exclamation-circle"></i> Please select at least one location</div>'; return; }
         
         if (isScheduled) {
-            const scheduleKey = email + '_schedule';
-            if (scheduledJobs[scheduleKey]) {
-                clearInterval(scheduledJobs[scheduleKey]);
-            }
-            
-            statusDiv.style.display = 'block';
-            statusDiv.innerHTML = `<div class="alert alert-info py-2"><i class="bi bi-clock"></i> Auto-send started: Every ${interval} hour(s) to ${email} for ${selected.length} location(s)</div>`;
+            const key = email + '_schedule';
+            if (scheduledJobs[key]) clearInterval(scheduledJobs[key]);
+            statusDiv.style.display='block'; statusDiv.innerHTML = `<div class="alert alert-info py-2"><i class="bi bi-clock"></i> Auto-send started: Every ${interval}h to ${email} (${selected.length} locations)</div>`;
             sendBtn.innerHTML = '<i class="bi bi-stop-circle"></i> Stop Auto-Send';
-            sendBtn.onclick = function() {
-                clearInterval(scheduledJobs[scheduleKey]);
-                delete scheduledJobs[scheduleKey];
-                statusDiv.innerHTML = '<div class="alert alert-warning py-2"><i class="bi bi-pause-circle"></i> Auto-send stopped</div>';
-                sendBtn.innerHTML = '<i class="bi bi-clock"></i> Start Auto-Send';
-                sendBtn.onclick = sendBulkAlert;
-            };
-            
-            for (const cb of selected) {
-                await sendEmailToLocation(email, cb.value, parseFloat(cb.dataset.temp), parseFloat(cb.dataset.humidity), cb.dataset.risk, parseFloat(cb.dataset.heat), cb.dataset.predictedTemp, cb.dataset.predictedRisk);
-            }
-            
-            scheduledJobs[scheduleKey] = setInterval(async () => {
-                const currentData = await fetch('/api/current-weather').then(r => r.json());
-                for (const item of currentData) {
-                    if (item.success && Array.from(selected).some(cb => cb.value === item.name)) {
-                        await sendEmailToLocation(email, item.name, item.temperature, item.humidity, item.risk_level, item.heat_index, item.predicted_temp, item.predicted_risk);
-                    }
-                }
+            sendBtn.onclick = function() { clearInterval(scheduledJobs[key]); delete scheduledJobs[key]; statusDiv.innerHTML='<div class="alert alert-warning py-2"><i class="bi bi-pause-circle"></i> Auto-send stopped</div>'; sendBtn.innerHTML='<i class="bi bi-clock"></i> Start Auto-Send'; sendBtn.onclick=sendBulkAlert; };
+            for (const cb of selected) await sendEmailToLocation(email, cb.value, parseFloat(cb.dataset.temp), parseFloat(cb.dataset.humidity), cb.dataset.risk, parseFloat(cb.dataset.heat), cb.dataset.predictedTemp, cb.dataset.predictedRisk);
+            scheduledJobs[key] = setInterval(async () => {
+                const d = await fetch('/api/current-weather').then(r => r.json());
+                for (const item of d) { if (item.success && Array.from(selected).some(cb => cb.value === item.name)) await sendEmailToLocation(email, item.name, item.temperature, item.humidity, item.risk_level, item.heat_index, item.predicted_temp, item.predicted_risk); }
             }, interval * 3600000);
-            
             return;
         }
         
-        sendBtn.disabled = true;
-        sendBtn.innerHTML = '<span class="spinner-border spinner-border-sm"></span> Sending...';
-        statusDiv.style.display = 'block';
-        statusDiv.innerHTML = '<div class="text-muted"><span class="spinner-border spinner-border-sm"></span> Sending alerts...</div>';
-        
-        let sent = 0;
-        let failed = 0;
-        
+        sendBtn.disabled = true; sendBtn.innerHTML = '<span class="spinner-border spinner-border-sm"></span> Sending...';
+        statusDiv.style.display='block'; statusDiv.innerHTML='<div class="text-muted"><span class="spinner-border spinner-border-sm"></span> Sending alerts...</div>';
+        let sent = 0, failed = 0;
         for (const cb of selected) {
-            try {
-                const result = await sendEmailToLocation(email, cb.value, parseFloat(cb.dataset.temp), parseFloat(cb.dataset.humidity), cb.dataset.risk, parseFloat(cb.dataset.heat), cb.dataset.predictedTemp, cb.dataset.predictedRisk);
-                if (result.success) sent++;
-                else failed++;
-            } catch (error) {
-                failed++;
-            }
+            try { const r = await sendEmailToLocation(email, cb.value, parseFloat(cb.dataset.temp), parseFloat(cb.dataset.humidity), cb.dataset.risk, parseFloat(cb.dataset.heat), cb.dataset.predictedTemp, cb.dataset.predictedRisk); if (r.success) sent++; else failed++; } catch(e) { failed++; }
         }
-        
-        if (failed === 0) {
-            statusDiv.innerHTML = `<div class="alert alert-success py-2"><i class="bi bi-check-circle"></i> Alert sent to ${email} for ${sent} location(s). <strong>Check your spam folder if not received.</strong></div>`;
-        } else {
-            statusDiv.innerHTML = `<div class="alert alert-warning py-2"><i class="bi bi-exclamation-triangle"></i> Sent: ${sent}, Failed: ${failed}</div>`;
-        }
-        
-        sendBtn.disabled = false;
-        sendBtn.innerHTML = '<i class="bi bi-send"></i> Send Alert';
+        statusDiv.innerHTML = failed === 0 ? `<div class="alert alert-success py-2"><i class="bi bi-check-circle"></i> Alert sent to ${email} for ${sent} location(s). <strong>Check spam folder if not received.</strong></div>` : `<div class="alert alert-warning py-2"><i class="bi bi-exclamation-triangle"></i> Sent: ${sent}, Failed: ${failed}</div>`;
+        sendBtn.disabled = false; sendBtn.innerHTML = '<i class="bi bi-send"></i> Send Alert';
     }
     
     function applyFilters() {
-        const locationFilter = document.getElementById('location-filter').value;
-        const riskFilter = document.getElementById('risk-filter').value;
-        
-        filteredAlerts = allAlerts.filter(alert => {
-            const locationMatch = locationFilter === 'all' || alert.location_name === locationFilter;
-            const riskMatch = riskFilter === 'all' || alert.risk_level === riskFilter;
-            return locationMatch && riskMatch;
-        });
-        
-        currentPage = 1;
-        displayAlerts();
+        const lf = document.getElementById('location-filter').value, rf = document.getElementById('risk-filter').value;
+        filteredAlerts = allAlerts.filter(a => (lf === 'all' || a.location_name === lf) && (rf === 'all' || a.risk_level === rf));
+        currentPage = 1; displayAlerts();
     }
     
-    function resetFilters() {
-        document.getElementById('location-filter').value = 'all';
-        document.getElementById('risk-filter').value = 'all';
-        filteredAlerts = [...allAlerts];
-        currentPage = 1;
-        displayAlerts();
-    }
+    function resetFilters() { document.getElementById('location-filter').value='all'; document.getElementById('risk-filter').value='all'; filteredAlerts=[...allAlerts]; currentPage=1; displayAlerts(); }
     
     function displayAlerts() {
         const tbody = document.getElementById('alerts-table-body');
-        const start = (currentPage - 1) * itemsPerPage;
-        const end = start + itemsPerPage;
-        const pageAlerts = filteredAlerts.slice(start, end);
-        
-        if (pageAlerts.length === 0) {
-            tbody.innerHTML = `<tr><td colspan="7" style="text-align: center; padding: 60px 20px;"><i class="bi bi-bell-slash" style="font-size: 48px; color: var(--text-muted);"></i><p style="margin-top: 16px; color: var(--text-secondary);">No alerts found</p></td></tr>`;
-            updatePaginationInfo(0, 0, 0);
-            document.getElementById('pagination').innerHTML = '';
-            return;
-        }
-        
+        const start = (currentPage-1)*itemsPerPage, end = start+itemsPerPage, pageAlerts = filteredAlerts.slice(start, end);
+        if (pageAlerts.length === 0) { tbody.innerHTML='<tr><td colspan="6" style="text-align:center;padding:60px 20px;"><i class="bi bi-bell-slash" style="font-size:48px;color:var(--text-muted);"></i><p style="margin-top:16px;color:var(--text-secondary);">No alerts found</p></td></tr>'; updatePaginationInfo(0,0,0); document.getElementById('pagination').innerHTML=''; return; }
         tbody.innerHTML = '';
-        pageAlerts.forEach(alert => {
-            const row = tbody.insertRow();
-            row.className = 'alert-row';
-            row.onclick = () => showAlertDetails(alert);
-            const time = new Date(alert.timestamp);
-            row.insertCell(0).textContent = time.toLocaleString('en-PH', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
-            row.insertCell(1).textContent = alert.location_name;
-            const riskCell = row.insertCell(2);
-            const riskColors = { 'HIGH': '#f97316', 'DANGEROUS': '#ef4444' };
-            riskCell.innerHTML = `<div class="risk-indicator-cell"><span class="risk-dot-large" style="background: ${riskColors[alert.risk_level] || '#6b7280'};"></span><span class="risk-badge ${alert.risk_level.toLowerCase()}">${alert.risk_level}</span></div>`;
-            row.insertCell(3).textContent = `${alert.temperature}°C`;
-            row.insertCell(4).textContent = `${alert.humidity}%`;
-            row.insertCell(5).textContent = `${calculateHeatIndex(alert.temperature, alert.humidity)}°C`;
-            row.insertCell(6).innerHTML = alert.email_sent ? '<span class="email-status sent"><i class="bi bi-check-circle"></i> Sent</span>' : '<span class="email-status failed"><i class="bi bi-x-circle"></i> Failed</span>';
+        pageAlerts.forEach(a => {
+            const row = tbody.insertRow(); row.className='alert-row'; row.onclick = () => showAlertDetails(a);
+            const time = new Date(a.timestamp);
+            row.insertCell(0).textContent = time.toLocaleString('en-PH', { month:'short', day:'numeric', hour:'2-digit', minute:'2-digit' });
+            row.insertCell(1).textContent = a.location_name;
+            row.insertCell(2).innerHTML = `<div class="risk-indicator-cell"><span class="risk-dot-large" style="background:${a.risk_level==='HIGH'?'#f97316':'#ef4444'};"></span><span class="risk-badge ${a.risk_level.toLowerCase()}">${a.risk_level}</span></div>`;
+            row.insertCell(3).textContent = `${a.temperature}°C`;
+            row.insertCell(4).textContent = `${a.humidity}%`;
+            row.insertCell(5).textContent = `${Math.round(a.temperature + 0.05*a.humidity)}°C`;
         });
-        updatePaginationInfo(start + 1, Math.min(end, filteredAlerts.length), filteredAlerts.length);
-        updatePagination();
+        updatePaginationInfo(start+1, Math.min(end, filteredAlerts.length), filteredAlerts.length); updatePagination();
     }
     
-    function calculateHeatIndex(temp, humidity) { return Math.round(temp + 0.05 * humidity); }
-    function updatePaginationInfo(start, end, total) { document.getElementById('showing-start').textContent = start; document.getElementById('showing-end').textContent = end; document.getElementById('total-items').textContent = total; }
-    
+    function updatePaginationInfo(s, e, t) { document.getElementById('showing-start').textContent=s; document.getElementById('showing-end').textContent=e; document.getElementById('total-items').textContent=t; }
     function updatePagination() {
-        const totalPages = Math.ceil(filteredAlerts.length / itemsPerPage);
-        const pagination = document.getElementById('pagination');
-        if (totalPages <= 1) { pagination.innerHTML = ''; return; }
-        let html = `<li class="page-item ${currentPage === 1 ? 'disabled' : ''}"><span class="page-link" onclick="changePage(${currentPage - 1})"><i class="bi bi-chevron-left"></i></span></li>`;
-        const maxVisible = 5;
-        let startPage = Math.max(1, currentPage - Math.floor(maxVisible / 2));
-        let endPage = Math.min(totalPages, startPage + maxVisible - 1);
-        if (endPage - startPage < maxVisible - 1) startPage = Math.max(1, endPage - maxVisible + 1);
-        if (startPage > 1) { html += `<li class="page-item"><span class="page-link" onclick="changePage(1)">1</span></li>`; if (startPage > 2) html += `<li class="page-item disabled"><span class="page-link">...</span></li>`; }
-        for (let i = startPage; i <= endPage; i++) { html += `<li class="page-item ${i === currentPage ? 'active' : ''}"><span class="page-link" onclick="changePage(${i})">${i}</span></li>`; }
-        if (endPage < totalPages) { if (endPage < totalPages - 1) html += `<li class="page-item disabled"><span class="page-link">...</span></li>`; html += `<li class="page-item"><span class="page-link" onclick="changePage(${totalPages})">${totalPages}</span></li>`; }
-        html += `<li class="page-item ${currentPage === totalPages ? 'disabled' : ''}"><span class="page-link" onclick="changePage(${currentPage + 1})"><i class="bi bi-chevron-right"></i></span></li>`;
-        pagination.innerHTML = html;
+        const tp = Math.ceil(filteredAlerts.length/itemsPerPage), pg = document.getElementById('pagination');
+        if (tp <= 1) { pg.innerHTML=''; return; }
+        let h = `<li class="page-item ${currentPage===1?'disabled':''}"><span class="page-link" onclick="changePage(${currentPage-1})"><i class="bi bi-chevron-left"></i></span></li>`;
+        let sp = Math.max(1, currentPage-Math.floor(2)), ep = Math.min(tp, sp+4);
+        if (ep-sp < 4) sp = Math.max(1, ep-4);
+        if (sp > 1) { h += `<li class="page-item"><span class="page-link" onclick="changePage(1)">1</span></li>`; if (sp > 2) h += '<li class="page-item disabled"><span class="page-link">...</span></li>'; }
+        for (let i=sp; i<=ep; i++) h += `<li class="page-item ${i===currentPage?'active':''}"><span class="page-link" onclick="changePage(${i})">${i}</span></li>`;
+        if (ep < tp) { if (ep < tp-1) h += '<li class="page-item disabled"><span class="page-link">...</span></li>'; h += `<li class="page-item"><span class="page-link" onclick="changePage(${tp})">${tp}</span></li>`; }
+        h += `<li class="page-item ${currentPage===tp?'disabled':''}"><span class="page-link" onclick="changePage(${currentPage+1})"><i class="bi bi-chevron-right"></i></span></li>`;
+        pg.innerHTML = h;
     }
+    function changePage(p) { const tp = Math.ceil(filteredAlerts.length/itemsPerPage); if (p >= 1 && p <= tp) { currentPage = p; displayAlerts(); } }
     
-    function changePage(page) { const totalPages = Math.ceil(filteredAlerts.length / itemsPerPage); if (page >= 1 && page <= totalPages) { currentPage = page; displayAlerts(); } }
-    
-    function showAlertDetails(alert) {
+    function showAlertDetails(a) {
         const modal = new bootstrap.Modal(document.getElementById('alertModal'));
-        const header = document.getElementById('alert-modal-header');
-        const body = document.getElementById('alert-modal-body');
-        const headerColors = { 'HIGH': '#f97316', 'DANGEROUS': '#ef4444' };
-        header.style.background = `linear-gradient(135deg, ${headerColors[alert.risk_level]}20, transparent)`;
-        const time = new Date(alert.timestamp);
-        const heatIndex = calculateHeatIndex(alert.temperature, alert.humidity);
-        body.innerHTML = `<div class="alert-detail-card"><div class="alert-detail-header"><div class="alert-detail-icon" style="background: linear-gradient(135deg, ${headerColors[alert.risk_level]}, ${headerColors[alert.risk_level]}dd);"><i class="bi bi-exclamation-triangle"></i></div><div class="alert-detail-title"><h5>${alert.location_name}</h5><span>${time.toLocaleString('en-PH', { dateStyle: 'full', timeStyle: 'medium' })}</span></div></div><div class="detail-row"><span class="detail-label">Risk Level</span><span class="detail-value"><span class="risk-badge ${alert.risk_level.toLowerCase()}" style="font-size: 13px;">${alert.risk_level}</span></span></div><div class="detail-row"><span class="detail-label">Temperature</span><span class="detail-value">${alert.temperature}°C</span></div><div class="detail-row"><span class="detail-label">Humidity</span><span class="detail-value">${alert.humidity}%</span></div><div class="detail-row"><span class="detail-label">Heat Index</span><span class="detail-value">${heatIndex}°C</span></div><div class="detail-row"><span class="detail-label">Email Status</span><span class="detail-value">${alert.email_sent ? '<span class="email-status sent"><i class="bi bi-check-circle"></i> Sent</span>' : '<span class="email-status failed"><i class="bi bi-x-circle"></i> Failed</span>'}</span></div></div><div style="padding: 16px; background: ${headerColors[alert.risk_level]}10; border-radius: 14px;"><strong style="display: block; margin-bottom: 8px;"><i class="bi bi-info-circle"></i> Advisory</strong><p style="margin: 0; color: var(--text-secondary);">${alert.message}</p></div>`;
+        const hc = { 'HIGH': '#f97316', 'DANGEROUS': '#ef4444' };
+        document.getElementById('alert-modal-header').style.background = `linear-gradient(135deg,${hc[a.risk_level]}20,transparent)`;
+        const time = new Date(a.timestamp), hi = Math.round(a.temperature + 0.05*a.humidity);
+        document.getElementById('alert-modal-body').innerHTML = `<div class="alert-detail-card"><div class="alert-detail-header"><div class="alert-detail-icon" style="background:linear-gradient(135deg,${hc[a.risk_level]},${hc[a.risk_level]}dd);"><i class="bi bi-exclamation-triangle"></i></div><div class="alert-detail-title"><h5>${a.location_name}</h5><span>${time.toLocaleString('en-PH',{dateStyle:'full',timeStyle:'medium'})}</span></div></div><div class="detail-row"><span class="detail-label">Risk Level</span><span class="detail-value"><span class="risk-badge ${a.risk_level.toLowerCase()}" style="font-size:13px;">${a.risk_level}</span></span></div><div class="detail-row"><span class="detail-label">Temperature</span><span class="detail-value">${a.temperature}°C</span></div><div class="detail-row"><span class="detail-label">Humidity</span><span class="detail-value">${a.humidity}%</span></div><div class="detail-row"><span class="detail-label">Heat Index</span><span class="detail-value">${hi}°C</span></div></div><div style="padding:16px;background:${hc[a.risk_level]}10;border-radius:14px;"><strong style="display:block;margin-bottom:8px;"><i class="bi bi-info-circle"></i> Advisory</strong><p style="margin:0;color:var(--text-secondary);">${a.message}</p></div>`;
         modal.show();
     }
     
     function exportAlerts() {
         if (filteredAlerts.length === 0) return;
-        let csv = 'Time,Location,Risk Level,Temperature,Humidity,Email Sent\n';
-        filteredAlerts.forEach(alert => { const time = new Date(alert.timestamp).toLocaleString('en-PH'); csv += `"${time}","${alert.location_name}","${alert.risk_level}",${alert.temperature},${alert.humidity},${alert.email_sent}\n`; });
-        const blob = new Blob([csv], { type: 'text/csv' });
-        const url = window.URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = `heatwatch-alerts-${new Date().toISOString().split('T')[0]}.csv`;
-        a.click();
+        let csv = 'Time,Location,Risk Level,Temperature,Humidity\n';
+        filteredAlerts.forEach(a => { csv += `"${new Date(a.timestamp).toLocaleString('en-PH')}","${a.location_name}","${a.risk_level}",${a.temperature},${a.humidity}\n`; });
+        const b = new Blob([csv], { type:'text/csv' }), u = window.URL.createObjectURL(b), el = document.createElement('a');
+        el.href = u; el.download = `heatwatch-alerts-${new Date().toISOString().split('T')[0]}.csv`; el.click();
     }
     
     document.getElementById('location-filter').addEventListener('change', applyFilters);
     document.getElementById('risk-filter').addEventListener('change', applyFilters);
-    
     loadAlerts();
     setInterval(loadAlerts, 300000);
 </script>
